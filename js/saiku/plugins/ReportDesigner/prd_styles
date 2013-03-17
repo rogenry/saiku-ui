@@ -1,0 +1,28 @@
+crosstab * crosstab-row-group > crosstab-row-group
+Use the package o.p.r.e.c.c.styles.css.selector 
+
+[17:09]	ReportingWizard	in the worst case: Use the package o.p.r.e.c.c.styles.css.selector
+[17:09]	ReportingWizard	but here is the 5minute guide:
+[17:09]	ReportingWizard	element tags in HTML => element-type-names in PRD
+[17:10]	ReportingWizard	class attribute in HTML => core::style-class in PRD
+[17:10]	ReportingWizard	id in HTML => xml::id
+[17:10]	ReportingWizard	selectors:
+[17:11]	ReportingWizard	negative selector: "NOT(selector)"
+[17:11]	ReportingWizard	NOT(label.myclass)
+[17:12]	ReportingWizard	element selector: as in CSS
+[17:12]	ReportingWizard	label to select label-elements etc
+[17:12]	ReportingWizard	child selector: band > label
+[17:13]	ReportingWizard	tests that the label is a direct child of the band
+[17:13]	ReportingWizard	descendant selector: band label
+[17:13]	ReportingWizard	tests that the label is a child, grand-child or so of the band
+[17:14]	ReportingWizard	silbling selector: label ~ text-field
+[17:14]	ReportingWizard	selects if label and text-field are child of the same parent, and if label is defined directly before text-field
+[17:14]	ReportingWizard	now: Attribute selectors:
+[17:14]	ReportingWizard	label[attribute]
+[17:15]	ReportingWizard	selects all labels that have a nonnull value in a attribute named 'attribute' in any namespace
+[17:15]	ReportingWizard	label[core|attribute]
+[17:15]	ReportingWizard	same as above, limited to core namespace
+[17:15]	ReportingWizard	label[attribute="test"]
+[17:16]	ReportingWizard	attribute must have the value test. Non-string values are converted to text via an internal, locale independent conversion.
+[17:16]	ReportingWizard	label[attribute~="test"]
+[17:17]	ReportingWizard	attribute value is interpreted as whitespace separated list of values, one of them has to match the value 'test'

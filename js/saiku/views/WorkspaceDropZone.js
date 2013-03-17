@@ -24,6 +24,7 @@ var WorkspaceDropZone = Backbone.View.extend({
     },
     
     events: {
+        'sortstart': 'remember_old_index', //MG
         'sortbeforestop': 'select_dimension',
         'click .d_dimension span.selections': 'selections',
         'click .d_dimension a': 'selections',
@@ -673,5 +674,10 @@ var WorkspaceDropZone = Backbone.View.extend({
             event.preventDefault();
         } catch (e) { }
         return false;
+    },
+
+    //MG: only works in html5
+    remember_old_index: function(event, ui) {
+        ui.item.attr('indexFrom', ui.item.parent('.connectable').children().index(ui.item));
     }
 });
