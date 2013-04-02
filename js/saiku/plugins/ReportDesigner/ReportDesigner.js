@@ -74,10 +74,11 @@ var ReportDesigner = Backbone.View.extend({
     	
     	var html = json.data.data;
 
+		$('.workspace_results').hide();
     	$(this.el).empty();
         $(this.el).html(html).wrapInner('<div class="report_border" />');
-        $('.report_border').width($('.report_border table').width()+30);
-	    
+		$('.report_border').width($('.report_border table').width()+30);
+		
 		$(".pager #curr_page").html(json.data.currentPage + 1);;		
 		$(".pager #off_page").html(json.data.pageCount);
 		

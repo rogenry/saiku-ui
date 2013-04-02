@@ -51,15 +51,15 @@ var ElementFormatPanel = Backbone.View.extend({
 	},
 
 	textcolor_callback: function(panel) {
-		return function (hsb, hex, rgb){
-			panel.reportSpec.setElementFormatPropertyById(panel.element,'fontColor','#' + hex);
+		return function (color){
+			panel.reportSpec.setElementFormatPropertyById(panel.element,'fontColor',color.toHexString());
 			panel.save();
 		}
 	},
 
 	bgcolor_callback: function(panel) {
-		return function (hsb, hex, rgb){
-			panel.reportSpec.setElementFormatPropertyById(panel.element,'backgroundColor','#' + hex);
+	return function (color){
+			panel.reportSpec.setElementFormatPropertyById(panel.element,'backgroundColor',color.toHexString());
 			panel.save();
 		}
 	},
@@ -89,7 +89,7 @@ var ElementFormatPanel = Backbone.View.extend({
 
 		$(this.el).find('#fontPickerInput').change(this.font_callback(this));
 
-		$(this.el).find('.text-color').ColorPicker({
+		/*$(this.el).find('.text-color').ColorPicker({
 			color: '#0000ff',
 			onShow: function (colpkr) {
 				$(colpkr).fadeIn(500);
@@ -100,19 +100,14 @@ var ElementFormatPanel = Backbone.View.extend({
 				return false;
 			},
 			onSubmit: this.textcolor_callback(this)
-		});
+		});*/
 
-		$(this.el).find('.background-color').ColorPicker({
-			color: '#0000ff',
-			onShow: function (colpkr) {
-				$(colpkr).fadeIn(500);
-				return false;
-			},
-			onHide: function (colpkr) {
-				$(colpkr).fadeOut(500);
-				return false;
-			},
-			onSubmit: this.bgcolor_callback(this)
+		$(this.el).find('#text-color').spectrum({
+				change: this.textcolor_callback(this)
+		});
+		
+		$(this.el).find('#background-color').spectrum({
+				change: this.bgcolor_callback(this)
 		});
 
 //		TODO: move to a template
@@ -202,11 +197,15 @@ var ElementFormatPanel = Backbone.View.extend({
 		};
 		
 		$('.report_inner').one('click', function(evt) {
-    		if (evt.target == this) {
-        		$('.saiku').removeClass('adhoc-highlight');		
+			if (evt.target == this) {
+				$('.saiku').removeClass('adhoc-highlight');		
         		$(this).find('#dragzone').fadeOut('slow').remove();
         		that.disable_buttons();	
     		}
+		});
+		
+		$('.report_border').click(function(e) {
+			e.stopPropagation();
 		});
 		
 		$('.report_border').mouseout(function(){

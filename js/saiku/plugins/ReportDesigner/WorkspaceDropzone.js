@@ -95,24 +95,14 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             .css({fontWeight: "bold"});
 
         // Wrap with the appropriate parent element
-        if (ui.item.find('a').hasClass('level')) {
-            var $icon = $("<div />").addClass('sprite').addClass('selections');
-            var $icon2 = $("<span />").addClass('sprite').addClass('sort none');
-        
-            ui.item.addClass('d_dimension').prepend($icon);
-            ui.item.addClass('d_dimension').prepend($icon2);
-        } else {
-            var initialSort = 'none'; 
-            if(target == "REL_GROUPS" || target == "COL_GROUPS" || target == "ROW_GROUPS"){
-              initialSort = 'BASC';
-            }
-
-            $icon = $("<span />").addClass('sort').addClass(initialSort);
-
-            ui.item.addClass('d_measure').prepend($icon);
-        }       
-
-        
+        var initialSort = 'none'; 
+        if(target == "REL_GROUPS" || target == "COL_GROUPS" || target == "ROW_GROUPS"){
+            initialSort = 'BASC';
+        }
+        var $icon = $("<div />").addClass('sprite').addClass('selections');
+        var $icon2 = $("<span />").addClass('sprite').addClass('sort').addClass(initialSort);
+        ui.item.addClass('d_dimension').prepend($icon);
+        ui.item.addClass('d_dimension').prepend($icon2);
 
         //MG// Todo: We must presort on the groups
 

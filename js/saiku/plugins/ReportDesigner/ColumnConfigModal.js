@@ -114,7 +114,7 @@ var ColumnConfigModal = Modal.extend({
     },
     
     post_render: function(args) {
-    	this.center();
+    	//this.center();
     },
     
     save: function() {

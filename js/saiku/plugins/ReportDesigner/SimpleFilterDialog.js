@@ -77,7 +77,7 @@ var SimpleFilterDialog = Modal.extend({
     
     post_render: function(args) {
         $(args.modal.el).parents('.ui-dialog').css({ width: "800px" });
-    	this.center();
+    	//this.center();
     },
 
     switch_multiselect: function(){

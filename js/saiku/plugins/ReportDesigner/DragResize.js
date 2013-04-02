@@ -62,7 +62,7 @@ var DragResize = Backbone.View.extend({
 
 			$('#resizearea').css('top', colHeaderPos.top);
 			$('#resizearea').css('left', 12 + colHeaderPos.left + colHeaderWidth - areaWidth + (2 * padding));
-			$('#resizearea').css('height', colHeaderHeight);
+			$('#resizearea').css('height', 8 + colHeaderHeight);
 
 			$('#resizearea').show();
 
@@ -70,7 +70,6 @@ var DragResize = Backbone.View.extend({
 
 			var borderPosition = $('.workspace_report_canvas').position();
 			var borderHeight = $('.workspace_report_canvas').height();
-
 			var borderTop = borderPosition.top;
 
 			//calculate the containment
@@ -98,14 +97,12 @@ var DragResize = Backbone.View.extend({
 				points.right = Math.max(points.right, p.left + width);
 				points.bottom = Math.max(points.bottom, p.top + height);
 			});
-
-			$helper = $('#resizer').addClass('resizer').css({
-				height: borderHeight
-			}); //,{top: borderTop});
+			
+			$helper = $('#resizer').addClass('resizer').css({height : borderHeight - 10, top: borderTop}); //,{top: borderTop});
 
 			//it sometimes mixes up the one that is being dragged with its neighbor
 
-			$('#draghandle').css('height', colHeaderHeight).draggable({
+			$('#draghandle').css('height', 8 + colHeaderHeight).draggable({
 				helper: function() {
 					return $helper.clone().removeAttr("id").removeClass("hide");
 				},
@@ -146,8 +143,19 @@ var DragResize = Backbone.View.extend({
 							break;
 						}
 					}
-					//here we need to do sth.
+
 					//calculate the new width using prcChange and put it in the  model
+					var detailId = elementClass.replace('dth','dtl') + "-x-x";
+					var format = self.workspace.serverReportSpec.getElementFormatById(detailId);
+					var width = format.width;
+					var oldWidthValue = width.value;
+					//var newWidthValue = oldWidthValue * (100 + prcChange)/100;
+					var newWidthValue = oldWidthValue + prcChange;
+					console.log("resized width ->" + newWidthValue);
+					//This does the trick, thnx jganoff ;)
+					var correctWidthValue = Math.max(1, Math.min(100, Math.round(newWidthValue * 1000) / 1000));
+					width.value = correctWidthValue;
+					self.workspace.reportSpec.setElementFormatPropertyById(detailId,'width',width);
 					self.workspace.query.run();
 				}
 			});
@@ -177,3 +185,115 @@ var DragResize = Backbone.View.extend({
 		}
 	}
 });
+
+
+
+
+
+
+/*
+
+
+
+
+
+(function ($) {
+    $.fn.jqDrag = function (h) {
+        return i(this, h, 'd');
+    };
+    $.fn.jqResize = function (h) {
+        return i(this, h, 'r');
+    };
+    $.jqDnR = {
+        dnr: {},
+        e: 0,
+        drag: function (v) {
+            if (M.k == 'd') E.css({
+                    left: M.X + v.pageX - M.pX,
+                    top: M.Y + v.pageY - M.pY
+                });
+            else E.css({
+                    width: Math.max(v.pageX - M.pX + M.W, 0),
+                    height: Math.max(v.pageY - M.pY + M.H, 0)
+                });
+            return false;
+        },
+        stop: function () {
+            E.css('opacity', M.o);
+            $().unbind('mousemove', J.drag).unbind('mouseup', J.stop);
+        }
+    };
+    var J = $.jqDnR,
+        M = J.dnr,
+        E = J.e,
+        i = function (e, h, k) {
+            return e.each(function () {
+                h = (h) ? $(h, e) : e;
+                h.bind('mousedown', {
+                    e: e,
+                    k: k
+                }, function (v) {
+                    var d = v.data,
+                        p = {};
+                    E = d.e;
+                    // attempt utilization of dimensions plugin to fix IE issues
+                    if (E.css('position') != 'relative') {
+                        try {
+                            E.position(p);
+                        } catch (e) {}
+                    }
+                    M = {
+                        X: p.left || f('left') || 0,
+                        Y: p.top || f('top') || 0,
+                        W: f('width') || E[0].scrollWidth || 0,
+                        H: f('height') || E[0].scrollHeight || 0,
+                        pX: v.pageX,
+                        pY: v.pageY,
+                        k: d.k,
+                        o: E.css('opacity')
+                    };
+                    E.css({
+                        opacity: 0.8
+                    });
+                    $().mousemove($.jqDnR.drag).mouseup($.jqDnR.stop);
+                    return false;
+                });
+            });
+        },
+        f = function (k) {
+            return parseInt(E.css(k)) || false;
+        };
+})(jQuery);
+
+.jqHandle {
+   background: red;
+   height:15px;
+}
+
+.jqDrag {
+  width: 100%;
+  cursor: move;
+}
+
+.jqResize {
+   width: 15px;
+   position: absolute;
+   bottom: 0;
+   right: 0;
+   cursor: se-resize;
+}
+
+.jqDnR {
+    z-index: 3;
+    position: relative;
+    
+    width: 180px;
+    font-size: 0.77em;
+    color: #618d5e;
+    margin: 5px 10px 10px 10px;
+    padding: 8px;
+    background-color: #EEE;
+    border: 1px solid #CCC;
+}
+
+*/

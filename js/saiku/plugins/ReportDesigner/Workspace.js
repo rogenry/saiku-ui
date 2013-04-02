@@ -207,14 +207,19 @@ reportDesigner.Workspace = Workspace.extend({
     },
 
     clear: function() {
+		// Adjust the dimensions of the report workspace 
+		$(this.el).find('.workspace_report').css({
+			height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - 40
+		});
+				
         // Adjust the dimensions of the report inner
         $(this.el).find('.report_inner').css({
-            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace-report-toolbar').height() - $(this.el).find('.workspace_toolbar').height() - $(this.el).find('.workspace_fields').height() - 80
+            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace-report-toolbar').height() - $(this.el).find('.workspace_toolbar').height() - 80
         });
 
         // Adjust the dimensions of the error window
         $(this.el).find('.workspace_error').css({
-            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - $(this.el).find('.workspace_fields').height() - 40
+            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - /*$(this.el).find('.workspace_fields').height()*/ - 40
         });
 
         this._super("clear", arguments);

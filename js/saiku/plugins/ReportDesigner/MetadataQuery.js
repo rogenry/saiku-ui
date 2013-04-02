@@ -107,10 +107,11 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		//Rebuild sorting:
 		this.workspace.metadataQuery.config.mql.orders = [];
 
-		var $measures = $(this.workspace.el).find('.measures ul li.d_measure');
-		var $relgroups = $(this.workspace.el).find('.relgroups ul li.d_measure');
-		var $colgroups = $(this.workspace.el).find('.colgroups ul li.d_measure');
-		var $rowgroups = $(this.workspace.el).find('.rowgroups ul li.d_measure');
+		//MG: Reuse d_measure or d_dimension
+		var $measures = $(this.workspace.el).find('.measures ul li.d_dimension');
+		var $relgroups = $(this.workspace.el).find('.relgroups ul li.d_dimension');
+		var $colgroups = $(this.workspace.el).find('.colgroups ul li.d_dimension');
+		var $rowgroups = $(this.workspace.el).find('.rowgroups ul li.d_dimension');
 
 		if(Settings.MODE === 'crosstab') {
 			this.build_sorts($rowgroups);

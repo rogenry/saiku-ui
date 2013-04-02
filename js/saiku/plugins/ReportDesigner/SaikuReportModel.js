@@ -324,6 +324,17 @@ saiku.report.Parameter = Parameter;
 		addColumn: function(field, position) {
 			var array = this.hasOwnProperty("fieldDefinitions") ? this["fieldDefinitions"] : this["fieldDefinitions"] = [];
 
+/*
+			//When a column is added, we need to calculate its initial width:
+			//width = 1 / (numberOfExistingColumns + 1) * 100%
+
+			var initialWidth = (1 / (array.length + 1)) * 100;
+			var path = ["elementFormats","x","x","width"]
+			this._upsertNested(field,path,initialWidth);			
+
+			//afterwards we have to redistribute the other columns.
+			this.rebuildColWidths();
+*/
 			if(position === undefined) {
 				console.log("pushing column " + field.fieldId);
 				array.push(field);
@@ -332,6 +343,40 @@ saiku.report.Parameter = Parameter;
 				array.splice(position, 0, field);
 			}
 		},
+
+		rebuildColWidths: function(){
+			//Assumption: all columns allready have a width
+			var totalFieldsWidth = 0;
+
+			for(field in this.fieldDefinitions){
+				totalFieldsWidth += field['elementFormats']['x']['x'].width;
+			}
+
+
+
+         var usedWidth = 0;
+
+         var columnCountMinusOne = model.report.fields.length - 1
+         //iterate columns
+         for (var i = 0; i < this.fieldDefinitions.length; i++) {
+             var columnConfig = this.fieldDefinitions[i];
+             var newWidth;
+             if (i !== indexOfTheOneThatHasBeenResized) {
+                 newWidth = (redistributableWidth / 100) * columnConfig.width.value;
+                 controller.setWidth(columnConfig, newWidth);
+                 usedWidth += columnConfig.width.value;
+             }
+         }
+         if (indexOfTheOneThatHasBeenResized >= 0) {
+             columnConfig = model.report.fields[indexOfTheOneThatHasBeenResized];
+             usedWidth = Math.round(usedWidth * 1000) / 1000;
+             newWidth = (100 > 100 ? 100 : 100) - usedWidth;
+             controller.setWidth(columnConfig, newWidth);
+         }
+
+
+
+		}, 
 
 		removeColumn: function(position) {
 			console.log("removing column at index " + position);
