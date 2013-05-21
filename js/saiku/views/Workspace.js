@@ -40,6 +40,9 @@ var Workspace = Backbone.View.extend({
         // Generate toolbar and append to workspace
         this.toolbar = new WorkspaceToolbar({ workspace: this });
         this.toolbar.render();
+
+        this.querytoolbar = new QueryToolbar({ workspace: this });
+        this.querytoolbar.render();
         
         // Create drop zones
         this.drop_zones = new WorkspaceDropZone({ workspace: this });
@@ -48,6 +51,7 @@ var Workspace = Backbone.View.extend({
         // Generate table
         this.table = new Table({ workspace: this });
         
+        this.chart = new Chart({ workspace: this });
         // Pull query from args
         if (args && args.query) {
             this.query = args.query;
@@ -87,9 +91,15 @@ var Workspace = Backbone.View.extend({
         // Show drop zones
         $(this.el).find('.workspace_editor').append($(this.drop_zones.el));
 
+        $(this.el).find('.query_toolbar').append($(this.querytoolbar.el));
         
         // Activate sidebar for removing elements
         $(this.el).find('.sidebar')
+            .droppable({
+                accept: '.d_measure, .d_dimension'
+            });
+
+        $(this.el).find('.workspace_results')
             .droppable({
                 accept: '.d_measure, .d_dimension'
             });
@@ -112,7 +122,10 @@ var Workspace = Backbone.View.extend({
         // Prepare the workspace for a new query
         $(this.el).find('.workspace_results table,.connectable')
             .html('');
-            
+        $(this.el).find('.workspace_results_info').empty();
+        $(this.chart.el).empty();
+        this.chart.render();
+        $(this.querytoolbar.el).find('ul.options a.on').removeClass('on');
         // Trigger clear event
         Saiku.session.trigger('workspace:clear', { workspace: this });
 
@@ -127,6 +140,8 @@ var Workspace = Backbone.View.extend({
         }
         $separator.height($("body").height() - heightReduction);
         $(this.el).find('.sidebar').height($("body").height() - heightReduction);
+
+        $(this.querytoolbar.el).find('div').height($("body").height() - heightReduction - 8);
         
         // Adjust the dimensions of the results window
         $(this.el).find('.workspace_results').css({
@@ -205,7 +220,8 @@ var Workspace = Backbone.View.extend({
 
         } else {
             $(this.el).find('.workspace_fields').show();
-            $(this.el).find('.workspace_editor .mdx_input').val('').addClass('hide');
+            $(this.el).find('.workspace_editor .mdx_input').addClass('hide');
+            $(this.el).find('.workspace_editor .editor_info').addClass('hide');
             $(this.toolbar.el).find('.auto, ,.toggle_fields, .query_scenario, .buckets, .non_empty, .swap_axis, .mdx, .switch_to_mdx').parent().show();
             $(this.el).find('.run').attr('href','#run_query');
         }
@@ -252,6 +268,7 @@ var Workspace = Backbone.View.extend({
     },
 
     populate_selections: function(dimension_el) {
+        var self = this;
 
         if (this.other_dimension) {
         // Populate selections - trust me, this is prettier than it was :-/
@@ -316,15 +333,28 @@ var Workspace = Backbone.View.extend({
                         }
                             
                         if (levels.indexOf(name) === -1) {
-                            var $dim = $(dimension_el)
-                                .find('a[rel="' + name + '"]')
-                                .parent();
-                            
-                            if (!$dim.html() || $dim.html() == null) {
-                                $dim = $(this.other_dimension)
+
+                            var $dim = $(''); 
+
+                            if (typeof dimension_el != "undefined" && (!$dim.html() || $dim.html() == null)) {
+                                $dim = $(dimension_el)
                                 .find('a[rel="' + name + '"]')
                                 .parent();
                             }
+
+                            if (typeof self.measure_list != "undefined" && (!$dim.html() || $dim.html() == null)) {
+                                $dim = $(self.measure_list.el)
+                                .find('a[rel="' + name + '"]')
+                                .parent();
+                            }
+                            
+                            if (typeof self.dimension_list != "undefined" && (!$dim.html() || $dim.html() == null)) {
+                                $dim = $(self.dimension_list.el)
+                                .find('a[rel="' + name + '"]')
+                                .parent();
+                            }
+
+
                             var $clone = $dim.clone()
                                 .addClass('d_' + type)
                                 .appendTo($axis);

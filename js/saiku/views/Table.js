@@ -86,6 +86,8 @@ var Table = Backbone.View.extend({
                 }       
             );
 
+            var children_payload = cell.properties.uniquename;
+
             var levels = [];
             var items = {};
             var dimensions = Saiku.session.sessionworkspace.dimensions[cube].get('data');
@@ -141,6 +143,7 @@ var Table = Backbone.View.extend({
                 }
             });
             items["keeponly"] = { payload: keep_payload }
+            items["getchildren"] = { payload: children_payload }
             
 
             
@@ -162,6 +165,7 @@ var Table = Backbone.View.extend({
                     "keeponly": {name: "Keep Only", payload: keep_payload }
             };
             if (d != "Measures") {
+                citems["getchildren"] = {name: "Show Children", payload: children_payload }
                 citems["fold1key"] = {
                         name: "Include Level",
                         items: lvlitems("include-")
@@ -177,9 +181,17 @@ var Table = Backbone.View.extend({
             }
             return {
                 callback: function(key, options) {
-                    self.workspace.query.action.put('/axis/' + axis + '/dimension/' + d, { 
+                    var url = '/axis/' + axis + '/dimension/' + d;
+                    var children = false;
+                    if (key.indexOf("children") > 0) {
+                        url = '/axis/' + axis + '/dimension/' + d + "/children";
+                        children = true;
+                    }
+                    self.workspace.query.action.put(url, { 
                         success: function() {
-                            var formatter = self.workspace.query.get('formatter');
+                            var formatter = children ?
+                                    "flat" :
+                                    self.workspace.query.get('formatter');
                             self.workspace.query.clear();
                             self.workspace.query.set({ 'formatter' : formatter });
                             self.workspace.query.fetch({ success: function() {
@@ -203,9 +215,14 @@ var Table = Backbone.View.extend({
                              }});
 
                         },
-                        data: {
-                            selections: "[" + items[key].payload + "]"
-                        }
+                        data: children ?
+                            {
+                                member: items[key].payload
+                            }
+                            :
+                            {
+                                selections: "[" + items[key].payload + "]"
+                            }
                     });
                     
                 },
@@ -223,20 +240,37 @@ var Table = Backbone.View.extend({
 
         $(this.workspace.el).find(".workspace_results_info").empty();
 
+        if (typeof args == "undefined" || typeof args.data == "undefined" || !$(this.el).is(':visible')) {
+            return;
+        }
+
         if (args.data != null && args.data.error != null) {
             return this.error(args);
         }
 
         
         // Check to see if there is data
-        if (args.data.cellset && args.data.cellset.length === 0) {
+        if (args.data == null || (args.data.cellset && args.data.cellset.length === 0)) {
             return this.no_results(args);
         }
+
         
         // Clear the contents of the table
+        var cdate = new Date().getHours() + ":" + new Date().getMinutes();
         var runtime = args.data.runtime != null ? (args.data.runtime / 1000).toFixed(2) : "";
+        /*
+        var info = '<b>Time:</b> ' + cdate 
+                + " &emsp;<b>Rows:</b> " + args.data.height 
+                + " &emsp;<b>Columns:</b> " + args.data.width 
+                + " &emsp;<b>Duration:</b> " + runtime + "s";
+*/
+var info = '<b><span class="i18n">Info:</span></b> &nbsp;' + cdate 
+                + "&emsp;/ &nbsp;" + args.data.width 
+                + " x " + args.data.height 
+                + "&nbsp; / &nbsp;" + runtime + "s";
         $(this.workspace.el).find(".workspace_results_info")
-            .html('<b>Rows:</b> ' + args.data.height + " <b>Columns:</b> " + args.data.width + " <b>Duration:</b> " + runtime + "s");
+            .html(info);
+        //Saiku.i18n.translate();
         $(this.el).html('<tr><td>Rendering ' + args.data.width + ' columns and ' + args.data.height + ' rows...</td></tr>');
 
         // Render the table without blocking the UI thread
@@ -249,6 +283,7 @@ var Table = Backbone.View.extend({
     },
 
     process_data: function(data) {
+
         var contents = "";
         var table = data ? data : [];
         var colSpan;
@@ -325,12 +360,12 @@ var Table = Backbone.View.extend({
                     var cssclass = (same ? "row_null" : "row");
                     var colspan = 0;
 
-                    if (!isHeaderLowestLvl && nextHeader.value === "null") {
+                    if (!isHeaderLowestLvl && (typeof nextHeader == "undefined" || nextHeader.value === "null")) {
                         colspan = 1;
                         var group = header.properties.dimension;
                         var level = header.properties.level;
                         var groupWidth = (group in rowGroups ? rowGroups[group].length - rowGroups[group].indexOf(level) : 1);
-                        for (var k = col + 1; colspan < groupWidth && data[row][k] !== "null"; k++) {
+                        for (var k = col + 1; colspan < groupWidth && k <= (lowestRowLvl+1) && data[row][k] !== "null"; k++) {
                             colspan = k - col;
                         }
                         col = col + colspan -1;
@@ -402,6 +437,6 @@ var Table = Backbone.View.extend({
     },
     
     error: function(args) {
-        $(this.el).html('<tr><td>' + args.data.error + '</td></tr>');
+        $(this.el).html('<tr><td>' + safe_tags_replace(args.data.error) + '</td></tr>');
     }
 });

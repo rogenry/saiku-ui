@@ -32,7 +32,7 @@ var Statistics = Backbone.View.extend({
         
         // Add stats button
         this.add_button();
-        this.workspace.toolbar.stats = this.show;
+        this.workspace.querytoolbar.stats = this.show;
         
         // Listen to adjust event and rerender stats
         this.workspace.bind('workspace:adjust', this.render);
@@ -47,11 +47,13 @@ var Statistics = Backbone.View.extend({
             $('<a href="#stats" class="stats button disabled_toolbar i18n" title="Basic Statistics"></a>')
             .css({  'background-image': "url('js/saiku/plugins/Statistics/sigma.png')",
                     'background-repeat':'no-repeat',
-                    'background-position':'50% 50%'
+                    'background-position':'50% 50%',
+                    'height' : '32px',
+                    'margin-top' : '5px'
                 });
 
-        var $stats_li = $('<li class="seperator"></li>').append($stats_button);
-        $(this.workspace.toolbar.el).find("ul").append($stats_li);
+        var $stats_li = $('<li class="seperator_vertical"></li>').append($stats_button);
+        $(this.workspace.querytoolbar.el).find("ul.table").append($stats_li);
     },
     
     show: function(event, ui) {
@@ -61,6 +63,8 @@ var Statistics = Backbone.View.extend({
         
         if ($(event.target).hasClass('on')) {
             this.render();
+        } else {
+            this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
         }
     },
     
@@ -74,7 +78,7 @@ var Statistics = Backbone.View.extend({
     },
     
     render: function() {
-        if (! $(this.workspace.toolbar.el).find('.stats').hasClass('on')) {
+        if (! $(this.workspace.querytoolbar.el).find('.stats').hasClass('on')) {
             return;
         }
 
