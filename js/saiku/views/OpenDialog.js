@@ -26,7 +26,8 @@ var OpenDialog = Modal.extend({
         'click .dialog_footer a:' : 'call',
         'click .query': 'select_name',
         'dblclick .query': 'open_query',
-        'click li.folder': 'toggle_folder'
+        'click li.folder': 'toggle_folder',
+        'keyup .search_file' : 'search_file'
     },
     
     buttons: [
@@ -38,7 +39,8 @@ var OpenDialog = Modal.extend({
         // Append events
         var self = this;
         var name = "";
-        this.message = "<div class='RepositoryObjects'>Loading....</div><div class='query_name'></div>"
+        this.message = '<b><span class="i18n">Search:</span></b> &nbsp;<input type="text" class="search_file"></input><br />'
+                    + "<div class='RepositoryObjects'>Loading....</div><br><b><div class='query_name'><span class='i18n'>Please select a file.....</span></div></b>"
         _.extend(this.options, {
             title: "Open"
         });
@@ -53,7 +55,7 @@ var OpenDialog = Modal.extend({
             }
             $(this.el).find('.RepositoryObjects').height( height );
             $(this.el).dialog( 'option', 'position', 'center' );
-            $(this.el).parents('.ui-dialog').css({ width: "500px" });
+            $(this.el).parents('.ui-dialog').css({ width: "550px" });
             $(this.el).find('.dialog_footer').find('a[href="#open_query"]').hide();
 
             self.repository.fetch( );
@@ -110,6 +112,32 @@ var OpenDialog = Modal.extend({
 
     unselect_current_selected_folder: function( ) {
         $( this.el ).find( '.selected' ).removeClass( 'selected' );
+    },
+
+    // XXX - duplicaten from OpenQuery
+    search_file: function(event) {
+        var filter = $(this.el).find('.search_file').val().toLowerCase();
+        var isEmpty = (typeof filter == "undefined" || filter == "" || filter == null);
+        if (isEmpty || event.which == 27 || event.which == 9) {
+            $(this.el).find('li.query, li.folder').removeClass('hide');
+            $(this.el).find( '.folder_row' ).find('.sprite').addClass( 'collapsed' );
+            $(this.el).find( 'li.folder .folder_content' ).addClass('hide');
+            $(this.el).find('.search_file').val('');
+        } else {
+            
+            $(this.el).find('li.query').removeClass('hide')
+            $(this.el).find('li.query a').filter(function (index) { 
+                return $(this).text().toLowerCase().indexOf(filter) == -1; 
+            }).parent().addClass('hide');
+            $(this.el).find('li.folder').addClass('hide');
+            $(this.el).find('li.query').not('.hide').parents('li.folder').removeClass('hide');
+            //$(this.el).find( 'li.folder .folder_content').not(':has(.query:visible)').parent().addClass('hide');
+
+            //not(':contains("' + filter + '")').parent().hide();
+            $(this.el).find( 'li.folder .folder_row' ).find('.sprite').removeClass( 'collapsed' );
+            $(this.el).find( 'li.folder .folder_content' ).removeClass('hide');
+        }
+        return false;
     },
 
     open_query: function(event) {

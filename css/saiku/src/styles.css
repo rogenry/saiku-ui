@@ -805,8 +805,8 @@ background: url("../../../images/src/sort_none.png") no-repeat;
     width: 40px;
 }
 .dialog_mdx .dialog_body textarea {
-    width: 335px;
-    height: 200px;
+    width: 450px;
+    height: 400px;
     font-size: 11px;
 }
 .dialog_save .dialog_icon {
@@ -824,7 +824,7 @@ background: url("../../../images/src/sort_none.png") no-repeat;
     background-position: -666px 15px;
 }
 .dialog_selections {
-	min-width: 500px !important;
+	min-width: 800px !important;
 }
 .dialog_selections .dialog_icon {
 	display: none;
@@ -844,15 +844,26 @@ background: url("../../../images/src/sort_none.png") no-repeat;
     vertical-align: middle;
 }
 .dialog_selections .dialog_body .used_selections {
-    padding-right: 5px;
+    padding-left: 25px;
     padding-top: 36px;
-    float: right;
+    float: left;
+}
+.dialog_selections .dialog_body .updown_buttons {
+    float: left;
+    padding-left: 25px;
+    padding-top: 145px;
+    text-align: center;
+    vertical-align: middle;
+    display: none;
 }
 .dialog_selections .dialog_body select {
     height: 270px;
     width: 350px;
     font-size: 11px;
     overflow: scroll;
+}
+.dialog_selections .options:before {
+    clear:both;
 }
 .dialog_selections .options {
     float: left;
@@ -865,7 +876,7 @@ background: url("../../../images/src/sort_none.png") no-repeat;
 
 .dialog_permissions .dialog_body {
     width: 370px;
-    height: 300px;
+    height: 380px;
 }
 .dialog_permissions .dialog_icon {
     display: none;
@@ -1105,10 +1116,14 @@ background: url("../../../images/src/sort_none.png") no-repeat;
     text-shadow: 1px 1px 0 #FFFFFF;
     overflow: hidden;
 }
-.disabled_toolbar {
+a.disabled_toolbar {
+    
+    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=30)";
+    filter: alpha(opacity = 50);
     opacity: 0.3 !important;
+    width: 100%;
 }
-.disabled_toolbar a.button:hover {
+a.disabled_toolbar:hover {
     border: none !important;
     padding: 8px !important;
 }
@@ -1274,6 +1289,10 @@ background: url("../../../images/src/sort_none.png") no-repeat;
 .query_toolbar ul li.hide {
     display: none;
 }
+.query_toolbar ul li.label {
+    width: 99%;
+}
+
 .query_toolbar ul li.seperator {
     border-left: 1px solid #D5D5D5;
     margin-left: 5px;
@@ -1624,7 +1643,7 @@ background: url("../../../images/src/sort_none.png") no-repeat;
 }
 
 #save_query_form [name="name"] {
-    width: 423px;
+    width: 390px;
 }
 
 .queries h3 {

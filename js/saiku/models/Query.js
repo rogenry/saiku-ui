@@ -20,6 +20,7 @@
 var Query = Backbone.Model.extend({
 
     formatter: Settings.CELLSET_FORMATTER,
+    properties: null,
 
     initialize: function(args, options) {
         // Save cube
@@ -40,6 +41,7 @@ var Query = Backbone.Model.extend({
         this.action = new QueryAction({}, { query: this });
         this.result = new Result({ limit: Settings.RESULT_LIMIT }, { query: this });
         this.scenario = new QueryScenario({}, { query: this });
+
         this.set({type:'QM'});
     },
     
@@ -54,31 +56,34 @@ var Query = Backbone.Model.extend({
                 cube: encodeURIComponent(response.cube.name),
                 axes: response.saikuAxes,
                 type: response.type
-        })
+        });
 
-        // Fetch initial properties from server
-        if (! this.properties) {
-            this.properties = new Properties({}, { query: this });
-        } else {
-            this.properties.fetch({
-                success: this.reflect_properties
-            });
+        if (typeof response.properties != "undefined" && "saiku.ui.formatter" in response.properties) {
+            this.set({formatter : response.properties['saiku.ui.formatter']});
         }
+
+        this.properties = new Properties(response.properties, { query: this });
+        this.reflect_properties();
     },
     
     reflect_properties: function() {
         this.workspace.trigger('properties:loaded');
     },
+
+    setProperty: function(key, value) {
+        if (typeof this.properties != "undefined" && this.properties.properties ) {
+            this.properties.properties[key] = value;
+        }
+    },
     
     run: function(force, mdx) {
         // Check for automatic execution
-
-        
-        if ( (this.properties.properties['saiku.olap.query.automatic_execution'] == "false") &&
+        Saiku.ui.unblock();
+        if (typeof this.properties != "undefined" && this.properties.properties['saiku.olap.query.automatic_execution'] === 'false'&&
             ! (force === true)) {
             return;
         }
-        Saiku.ui.unblock();
+
         $(this.workspace.el).find(".workspace_results_info").empty();
         this.workspace.trigger('query:run');
         this.result.result = null;
@@ -137,9 +142,9 @@ var Query = Backbone.Model.extend({
             },
             
             success: function() {
-                if (this.query.properties
-                    .properties['saiku.olap.query.automatic_execution'] === 'true') {
-                    this.query.run();
+                if (('MODE' in Settings && (Settings.MODE == 'view' || Settings.MODE == 'table')) || (typeof this.query.properties != "undefined" && this.query.properties 
+                    .properties['saiku.olap.query.automatic_execution'] === 'true')) {
+                    this.query.run(true);
                 }
             }
         });

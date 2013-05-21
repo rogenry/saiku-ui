@@ -23,7 +23,7 @@ var QueryToolbar = Backbone.View.extend({
 
     events: {
         'click .options a.button': 'call',
-        'click .renderer a.button' : 'switch_render'
+        'click .renderer a.button' : 'switch_render_button'
     },
     
     table: {
@@ -39,12 +39,12 @@ var QueryToolbar = Backbone.View.extend({
         this.workspace = args.workspace;
         
         // Maintain `this` in callbacks
-        _.bindAll(this, "call","activate_buttons", "spark_bar", "spark_line", "render_row_viz", "run_row_viz");
+        _.bindAll(this, "call","activate_buttons", "spark_bar", "spark_line", "render_row_viz", "run_row_viz", "switch_render_button");
                 
         // Activate buttons when a new query is created or run
         this.workspace.bind('query:new', this.activate_buttons);
         this.workspace.bind('query:result', this.activate_buttons);
-        Saiku.events.bind('table:rendered', this.run_row_viz);
+        this.workspace.bind('table:rendered', this.run_row_viz);
         
     },
     
@@ -69,33 +69,57 @@ var QueryToolbar = Backbone.View.extend({
         return this; 
     },
     
-    switch_render: function(event) {
+    switch_render_button: function(event) {
         $target = $(event.target);
+        event.preventDefault();
         $target.parent().siblings().find('.on').removeClass('on');
-        $target.addClass('on');
         if ($target.hasClass('render_chart')) {
+            this.switch_render('chart');
+            this.workspace.query.setProperty('saiku.ui.render.mode', 'chart');
+            var c = $(this.el).find('ul.chart li a.on:first').size() > 0 ?
+                        $(this.el).find('ul.chart li a.on:first').attr('href').replace('#', '')
+                        : null;
+            if (c != null) {
+                this.workspace.query.setProperty('saiku.ui.render.type', c);
+            }
+        } else {
+            this.switch_render('table');
+            this.workspace.query.setProperty('saiku.ui.render.mode', 'table');
+            this.workspace.query.setProperty('saiku.ui.render.type', this.table.sparkType);
+
+        }
+
+
+    },
+    switch_render: function(render_type) {
+        render_type = (typeof render_type != "undefined" ? render_type.toLowerCase() : "table");
+        $(this.el).find('ul.renderer a.on').removeClass('on');
+        $(this.el).find('ul.renderer a.render_' + render_type).addClass('on');
+        if ("chart" == render_type) {
             $(this.el).find('ul.chart').show();
             $(this.el).find('ul.table').hide();
             this.render_mode = "chart";
             $(this.workspace.el).find('.workspace_results').children().hide();
-            this.workspace.chart.show(event);
+            this.workspace.chart.show();
         } else {
             $(this.el).find('ul.chart').hide();
             $(this.el).find('ul.table').show();
             $(this.el).find('ul.table .stats').removeClass('on');
-
             $(this.workspace.el).find('.workspace_results table').show();
             $(this.workspace.chart.el).hide();
             $(this.workspace.chart.nav).hide();
-            this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
-            
-
             this.render_mode = "table";
+            var hasRun = this.workspace.query.result.hasRun();
+            if (hasRun) {
+                this.workspace.table.render({ data: this.workspace.query.result.lastresult() });
+            }
+            
         }
         return false;
     },
 
     call: function(event) {
+        event.preventDefault();
         if (! $(event.target).hasClass('disabled_toolbar')) {
             // Determine callback
             var callback = event.target.hash.replace('#', '');
@@ -113,26 +137,28 @@ var QueryToolbar = Backbone.View.extend({
         return false;
     },
 
-    spark_bar: function(event) {
-        $(event.target).toggleClass('on');
+    spark_bar: function() {
+        $(this.el).find('ul.table .spark_bar').toggleClass('on');
         $(this.el).find('ul.table .spark_line').removeClass('on');
 
         $(this.workspace.table.el).find('td.spark').remove();
         if ($(this.el).find('ul.table .spark_bar').hasClass('on')) {
             this.table.sparkType = "spark_bar";
+            this.workspace.query.setProperty('saiku.ui.render.type', 'spark_bar');
             _.delay(this.render_row_viz, 10, "spark_bar");
         } else {
             this.table.sparkType = null;
         }
     },
 
-    spark_line: function(event) {
-        $(event.target).toggleClass('on');
+    spark_line: function() {
+        $(this.el).find('ul.table .spark_line').toggleClass('on');
         $(this.el).find('ul.table .spark_bar').removeClass('on');
 
         $(this.workspace.table.el).find('td.spark').remove();
         if ($(this.el).find('ul.table .spark_line').hasClass('on')) {
             this.table.sparkType = "spark_line";
+            this.workspace.query.setProperty('saiku.ui.render.type', 'spark_line');
             _.delay(this.render_row_viz, 10, "spark_line");
         } else {
             this.table.sparkType = null;

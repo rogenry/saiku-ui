@@ -110,6 +110,7 @@ var Chart = Backbone.View.extend({
                     'border': '1px solid #ccc', 
                     padding: '5px' 
                 });
+        /* XXX - enable again later
         $(this.nav).append('<div style="display:none;"> <div id="charteditor" class="chart_editor"></div></div>');
         
         this.editor = new ChartEditor({  workspace : this.workspace, 
@@ -119,6 +120,7 @@ var Chart = Backbone.View.extend({
                                         getChartProperties : this.getChartProperties});
 
         $(this.nav).find('.chart_editor').append($(this.editor.el));
+        */
 
     },
 
@@ -158,7 +160,11 @@ var Chart = Backbone.View.extend({
 
     show: function(event, ui) {
         $(this.el).show();
-        $(this.nav).show();
+        if ('MODE' in Settings && Settings.MODE == 'table') {
+            $(this.nav).hide();    
+        } else {
+            $(this.nav).show();
+        }
         $('a#acharteditor').fancybox(
                                    {
                                    'autoDimensions'    : false,
@@ -177,7 +183,6 @@ var Chart = Backbone.View.extend({
         if (this.cccOptions.height <= 0) {
             this.cccOptions.height = $(this.workspace.el).find('.workspace_results').height() - 40;
         }
-        this.block_ui();
         this.process_data({ data: this.workspace.query.result.lastresult() });
     },
 
@@ -187,6 +192,7 @@ var Chart = Backbone.View.extend({
     },
 
     stackedBar: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'stackedBar');
         var options = {
             stacked: true,
             type: "BarChart"
@@ -196,6 +202,7 @@ var Chart = Backbone.View.extend({
     },
     
     bar: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'bar');
         var options = {
             type: "BarChart"
         };
@@ -213,12 +220,14 @@ var Chart = Backbone.View.extend({
     },
 
     multiplebar: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'multiplebar');
         var options = {
             type: "BarChart",
             multiChartIndexes: [1],
             dataMeasuresInColumns: true,
             orientation: "vertical",
             smallTitlePosition: "top",
+            multiChartMax: 30,
             multiChartColumnsMax: Math.floor( this.cccOptions.width / 200),
             smallWidth: 200,
             smallHeight: 150
@@ -229,6 +238,7 @@ var Chart = Backbone.View.extend({
     },
     
     line: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'line');
         var options = {
             type: "LineChart"
         };
@@ -238,6 +248,7 @@ var Chart = Backbone.View.extend({
     },
     
     pie: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'pie');
         var options = {
             type: "PieChart",
             multiChartIndexes: [0] // ideally this would be chosen by the user (count, which)
@@ -247,6 +258,7 @@ var Chart = Backbone.View.extend({
     },
 
     heatgrid: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'heatgrid');
         var options = {
             type: "HeatGridChart"
         };
@@ -255,6 +267,7 @@ var Chart = Backbone.View.extend({
     },
 
     stackedBar100: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'stackedBar100');
         var options = {
             type: "NormalizedBarChart"
         };
@@ -263,6 +276,7 @@ var Chart = Backbone.View.extend({
     },
 
     area: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'area');
         var options = {
             type: "StackedAreaChart"
         };
@@ -270,6 +284,7 @@ var Chart = Backbone.View.extend({
         this.render_chart();
     },
     dot: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'dot');
         var options = {
             type: "DotChart"
         };
@@ -277,6 +292,7 @@ var Chart = Backbone.View.extend({
         this.render_chart();
     },
     waterfall: function() {
+        this.workspace.query.setProperty('saiku.ui.render.type', 'waterfall');
         var options = {
             type: "WaterfallChart"
         };
@@ -381,9 +397,12 @@ var Chart = Backbone.View.extend({
             return;
         }
 
+        /* XXX - enable later
+        var start = new Date().getTime();
         this.editor.chartDefinition = _.clone(this.cccOptions);
         this.editor.set_chart("pvc." + this.cccOptions.type);
         this.editor.render_chart_properties("pvc." + this.cccOptions.type, this.editor.chartDefinition);
+        */
 
         this.chart = new pvc[this.cccOptions.type](this.cccOptions);
         
@@ -399,6 +418,9 @@ var Chart = Backbone.View.extend({
             $(this.el).text("Could not render chart");
         }
         Saiku.ui.unblock();
+        //var end = new Date().getTime();
+        //console.log("Duration: " + (end - start));
+
     },
             
     receive_data: function(args) {
@@ -508,6 +530,7 @@ var Chart = Backbone.View.extend({
             }
             //makeSureUniqueLabels(this.data.resultset);
             this.data.height = this.data.resultset.length;
+            this.cccOptions = this.getQuickOptions(this.cccOptions);
             this.render_chart();
         } else {
             $(this.el).text("No results");

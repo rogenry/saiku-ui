@@ -80,6 +80,7 @@ var WorkspaceToolbar = Backbone.View.extend({
     
     call: function(event) {
         // Determine callback
+        event.preventDefault();
         var callback = event.target.hash.replace('#', '');
         
         // Attempt to call callback
@@ -134,6 +135,7 @@ var WorkspaceToolbar = Backbone.View.extend({
     save_query: function(event) {
         var self = this;
         if (this.workspace.query) {
+            this.workspace.query.properties.update(false);
             if (typeof this.editor != "undefined") {
                 var mdx = this.editor.getValue();
                 this.workspace.query.action.post("/mdx", { 
@@ -176,9 +178,11 @@ var WorkspaceToolbar = Backbone.View.extend({
     group_parents: function(event) {
         $(event.target).toggleClass('on');
         if ($(event.target).hasClass('on')) {
-            this.workspace.query.set({formatter: "flattened"})
+            this.workspace.query.set({formatter: "flattened"});
+            this.workspace.query.setProperty('saiku.ui.formatter', 'flattened');
         } else {
-            this.workspace.query.set({formatter: "flat"})
+            this.workspace.query.set({formatter: "flat"});
+            this.workspace.query.setProperty('saiku.ui.formatter', 'flat');
         }
         this.workspace.query.run();
     },
@@ -328,7 +332,7 @@ var WorkspaceToolbar = Backbone.View.extend({
 
     switch_to_mdx: function(event) {
         var self = this;
-        $(this.workspace.el).find('.workspace_fields').hide();
+        $(this.workspace.el).find('.workspace_fields').addClass('hide');
         $(this.el).find('.auto, ,.toggle_fields, .query_scenario, .buckets, .non_empty, .swap_axis, .mdx, .switch_to_mdx').parent().hide();
         
 
@@ -373,12 +377,32 @@ var WorkspaceToolbar = Backbone.View.extend({
                 self.workspace.adjust();
             };
 
+            var resizeFunction = function() {
+                var session = self.editor.session;
+                $mdx_editor.width($(self.el).width()-50);
+                self.editor.resize();
+                session.setUseWrapMode(true);
+                if(session.getUseWrapMode()) {
+                    var characterWidth = self.editor.renderer.characterWidth;
+                    var contentWidth = self.editor.renderer.scroller.clientWidth;
+
+                    if(contentWidth > 0) {
+                        session.setWrapLimitRange(null, parseInt(contentWidth / characterWidth, 10));
+                    }
+                }
+            };
+
+            resizeFunction();
+
             heightUpdateFunction();
 
             self.editor.focus();
             self.editor.clearSelection();
             self.editor.getSession().setValue("");
             self.editor.getSession().on('change', heightUpdateFunction);
+            $(window).resize(resizeFunction);
+            self.editor.getSession().on('resize', resizeFunction);
+            
 
             //this.editor.setTheme("ace/theme/crimson_editor");
             this.editor.getSession().setMode("ace/mode/text");
@@ -407,19 +431,15 @@ var WorkspaceToolbar = Backbone.View.extend({
     post_mdx_transform: function() {
         var self = this;
 
-        var transformed = function() {
-            self.workspace.query.set({type:'MDX', formatter: "flat" });
-            $(self.el).find('.group_parents').removeClass('on');
-        };
-
-        this.workspace.query.action.get("/mdx", { 
+        this.workspace.query.action.post("/qm2mdx", { 
             success: function(model, response) {
                 //$(self.workspace.el).find(".mdx_input").val(response.mdx);
-                self.editor.setValue(response.mdx,0);
+                self.editor.setValue(model.mdx,0);
                 self.editor.focus();
                 self.editor.clearSelection();
-                self.workspace.query.action.post("/qm2mdx", { success: transformed } );
-
+                self.workspace.query.parse(model);
+                self.workspace.query.set({type:'MDX', formatter: "flat" });
+                $(self.el).find('.group_parents').removeClass('on');
             }
         });
 

@@ -122,12 +122,12 @@
             <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/jquery.tipsy.js"></script>
             <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/tipsy.js"></script>
             <link type="text/css" href="js/saiku/plugins/CCC_Chart/tipsy.css" rel="stylesheet"/>
+            <!-- FUTURE FILES FOR CHART EDITOR 
             <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/cccProperties.js"></script>
             <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/cccCharts.js"></script>
             <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/ChartEditor.js"></script>
+            -->
             <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/plugin.js"></script>
-
-            <!-- <script type="text/javascript" src="js/saiku/plugins/CCC_Chart/plugin.js" defer></script> -->
 
         <script type="text/javascript" src="js/ace/ace.js" charset="utf-8"></script>
 
@@ -382,16 +382,16 @@
         <script type="text/x-jquery-tmpl" id="template-query-toolbar">
         <div class="query_toolbar_vertical">
         <ul class="renderer">
-            <li><a class="label disabled_toolbar i18n">Mode:</a></li>
+            <li class="label"><a class="label disabled_toolbar i18n">Mode:</a></li>
 
-            <li><a href="#switch_render" 
+            <li><a href="#switch_render_button" 
                 class="i18n render_table button disabled_toolbar on"></a></li>
-            <li><a href="#switch_render" 
+            <li><a href="#switch_render_button" 
                 class="i18n render_chart button disabled_toolbar" 
                 title="Toggle Chart"></a></li>
         </ul>
         <ul class='options table hide'>
-            <li class="seperator_vertical"><a class="i18n label disabled_toolbar">Options:</a></li>
+            <li class="seperator_vertical label"><a class="i18n label disabled_toolbar">Options:</a></li>
             <li><a href="#spark_bar" 
                 class="i18n spark_bar tablebutton button disabled_toolbar" 
                 title="Spark Bar"></a></li>
@@ -444,8 +444,8 @@
         </script>
         
         <script type="text/x-jquery-tmpl" id="template-open-dialog">
-            <div class="workspace">
-                <div class="workspace_inner">
+            <div class="workspace" style="margin-left: -305px">
+                <div class="workspace_inner" style="margin-left: 305px">
                     <div class="workspace_toolbar hide">
                     <ul>
                         <li class='for_queries hide'><a href="#open_query" class="open button sprite"></a></li>
@@ -463,9 +463,9 @@
                 </div>
             </div>
 
-            <div class="sidebar queries">
-                <h3 class="top">
-                    <span class="i18n">Queries</span>
+            <div class="sidebar queries" style="width: 300px">
+                <h3 class="top" style="padding-top:3px;padding-bottom:2px;">
+                    <b><span class="i18n">Search:</span></b> &nbsp;
                     <input type="text" class="search_file"></input>
                     <span class="add_folder_button"><a href='#' class='add_folder'></a></span>
                 </h3>
@@ -512,7 +512,7 @@
 
         <script type="text/x-jquery-tmpl" id="template-selections">
             <div class="available_selections">
-            <label for="filter_selections" class="i18n">Search: &nbsp;</label><input name="'filter_selections" id="filter_selections" type="text" class="filterbox" /> <br />
+            <label for="filter_selections" class="i18n">Search:</label> &nbsp;<input name="'filter_selections" id="filter_selections" type="text" class="filterbox" /> <br />
                 <span class="i18n">Available members:</span><br/>
                 <select multiple disabled>
                 </select>
@@ -527,6 +527,11 @@
                 <span class="i18n">Used members:</span><br/>
                 <select multiple disabled></select>
             </div>
+            <div class="updown_buttons">
+                <a class="form_button" href="#up" id="up_members">&nbsp;&uarr;&nbsp;</a><br><br>
+                <a class="form_button" href="#down" id="down_members">&nbsp;&darr;&nbsp;</a><br><br>
+            </div>
+
             <div class="options">
                 <input name="show_unique" id="show_unique" type="checkbox" /><label for="show_unique" class="i18n">Show Unique Names</label><br />
                 <input name="use_result" id="use_result" type="checkbox" /><label for="use_result" class="i18n">Use Result</label>
@@ -535,11 +540,11 @@
         <script type="text/x-jquery-tmpl" id="template-permissions">
             <div class="permissions">
 
-                        <label for="filter_roles" class="i18n">Add role permission: &nbsp;</label>
+                        <label for="filter_roles" class="i18n">Add role permission:</label>
                         <br />
                         <form>
                             <input name="'filter_roles" id="filter_roles" type="text" class="filterbox" /> 
-                            <input type="submit" value="Add" class="add_role" />
+                            <input type="submit" value="Add" class="i18n add_role" />
                         </form>
                         <input type="checkbox" class="acl" value="READ" />READ 
                         <input type="checkbox" class="acl" value="WRITE" /> WRITE 
@@ -549,8 +554,15 @@
                 <span class="i18n">Roles:</span>
                 <div class="rolelist"></div>
                 <br />
-                <input type="submit" value="Remove permission" class="remove_acl" />
+                <input type="submit" value="Remove permission" class="i18n remove_acl" />
             </div>
+            <br />
+            <div class="private">
+                <input type="checkbox" class="private" value="PRIVATE" /><span class="i18n">Keep this file private to me</span> (<b><%= Saiku.session.username %></b> )
+                <br /><br />
+                <span class="private_owner" style="display:none;"><span class="i18n">Currently private to:</span>&nbsp;<span class="owner"></span></span>
+            </div>
+            <br />
         </script>
         <script type="text/x-jquery-tmpl" id="template-permissions-rolelist">
             <select class="select_roles" multiple size="4">
@@ -575,9 +587,9 @@
         </script>
         <script type="text/x-jquery-tmpl" id="template-drillthrough-list">
         <div class="sidebar" style="border:1px solid #CCCCCC">
-            <h3 class="i18n"><input type="checkbox" class="all_dimensions"/>Dimensions</h3>
+            <h3><input type="checkbox" class="all_dimensions"/> &nbsp;<span class="i18n">Dimensions</span></h3>
             <div class="sidebar_inner dimension_tree"></div>
-            <h3 class="i18n"><input type="checkbox" class="all_measures"/>Measures</h3>
+            <h3><input type="checkbox" class="all_measures"/> &nbsp;<span class="i18n">Measures</span></h3>
             <div class="sidebar_inner measure_tree"></div>
         </div>
         
@@ -618,7 +630,7 @@
         <ul>
             <li>
                 <span class="root expand sprite"></span>
-                   <a href="#" title="Measures" class="folder_expand sprite">Measures</a>
+                   <a href="#" title="Measures" class="folder_expand i18n sprite">Measures</a>
                 
                 <ul>
                 <% _.each(measures, function(measure) { %>
