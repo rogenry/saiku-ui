@@ -23,16 +23,19 @@
  */
 var SimpleFilterDialog = Modal.extend({
     type: "simpleFilterDialog",
-    
-    buttons: [
-        { text: "Save", method: "save" },
-        { text: "Cancel", method: "close" }
-    ],
-    
+
+    buttons: [{
+        text: "Save",
+        method: "save"
+    }, {
+        text: "Cancel",
+        method: "close"
+    }],
+
     events: {
         'click a': 'call',
     },
-    
+
     initialize: function(args) {
         // Initialize properties
         _.extend(this, args);
@@ -45,49 +48,92 @@ var SimpleFilterDialog = Modal.extend({
         this.message = "Fetching values...";
         this.show_unique = false;
 
-        _.bindAll(this, "populate", "finished");
+        _.bindAll(this, "populate", "finished", "build_filterquery");
 
         // Resize when rendered
         this.bind('open', this.post_render);
         this.render();
 
-        this.populate();
+        var template = _.template($("#template-filter-dialog").html())(this);
+
+        $(this.el).find('.dialog_body').html(template);
+
+        var filterRow = new FilterRow({
+            el: $(this.el).find('.simple_filter_row'),
+            workspace: this.workspace,
+            filterModel: this.filterModel
+        });
+
+        if(this.filterModel.columnMeta.type == "STRING") {
+            this.switch_multiselect();
+
+            this.build_filterquery();
+
+            var mqlQueryString = this.metadataQuery.toXml();
+
+            $.ajax({
+                type: "POST",
+                url: 'http://localhost:8080/saiku-reporting-webapp/rest/saiku-adhoc/rest/generator/filtervalues',
+                data: {mql: mqlQueryString},
+                success: function() {
+                    alert('success');
+                },
+                error: function() {
+                    alert('error');
+                },
+                dataType: 'json'
+            });
+
+        } else {
+            this.switch_expression();
+        }
+
+        // Show dialog
+        Saiku.ui.unblock();
+
+
+    },
+
+    build_filterquery: function() {
+        this.metadataQuery = new reportDesigner.mql.Query({
+            mql: {
+                domain_id: this.workspace.metadataQuery.domainName,
+                model_id: this.workspace.metadataQuery.modelId
+            }
+        });
+
+        var mc = this.filterModel.columnMeta;
+
+        var selection = {
+            table: mc.category,
+            column: mc.id,
+            aggregation: AggregationFunction.NONE
+        };
+
+        this.metadataQuery.addSelection(selection);
+
     },
 
     populate: function(model, response) {
 
-        var template = _.template($("#template-filter-dialog").html())(this); 
 
-        if(this.filterModel.columnMeta.type == "STRING"){
-            //create query and fetch values through cda
-        }
-
-        $(this.el).find('.dialog_body').html(template);
-
-        var filterRow = new FilterRow({ el: $(this.el).find('.simple_filter_row') ,
-            workspace: this.workspace, filterModel: this.filterModel});
-        
-        //$(this.el).find('.select_from_list').hide();
-
-        //wenn kein STRINGFELD dann verstecke die multiselect box
-        this.switch_multiselect();
-        // Show dialog
-        Saiku.ui.unblock();
     },
-    
+
     post_render: function(args) {
-        $(args.modal.el).parents('.ui-dialog').css({ width: "800px" });
-    	//this.center();
+        $(args.modal.el).parents('.ui-dialog').css({
+            width: "800px"
+        });
+        //this.center();
     },
 
-    switch_multiselect: function(){
+    switch_multiselect: function() {
         $(this.el).find('.filter_selection').addClass('selected');
         $(this.el).find('.filter_expression').removeClass('selected');
         $(this.el).find('.select_from_list').show();
         $(this.el).find('.simple_filter_row').hide();
     },
 
-    switch_expression: function(){
+    switch_expression: function() {
         $(this.el).find('.filter_selection').removeClass('selected');
         $(this.el).find('.filter_expression').addClass('selected');
         $(this.el).find('.select_from_list').hide();
@@ -105,14 +151,14 @@ var SimpleFilterDialog = Modal.extend({
 
         var constraint = {
             operator: OperatorType.AND,
-            condition: FilterController.filterRowToFormula(this.filterModel)
+            condition: reportDesigner.mql.FilterController.filterRowToFormula(this.filterModel)
         }
 
         this.workspace.metadataQuery.setConstraint(constraint, this.filterModel.index);
 
         this.finished();
     },
-    
+
     finished: function() {
         $(this.el).dialog('destroy').remove();
         this.query.run();

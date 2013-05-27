@@ -49,17 +49,30 @@ var ElementFormatPanel = Backbone.View.extend({
 	template: function() {
 		return _.template($("#format-editor").html())();
 	},
+	
+	element_format: function() {
+			var targetElements = $('.adhoc-highlight').toArray();
+			var targetElementIdList = new Array();
+			$.each(targetElements, function() {
+				targetElementIdList.push($(this).attr('id'));
+			});
+			return _.uniq(targetElementIdList);
+	},
 
 	textcolor_callback: function(panel) {
 		return function (color){
-			panel.reportSpec.setElementFormatPropertyById(panel.element,'fontColor',color.toHexString());
+			$.each(panel.element_format(), function() { 
+				panel.reportSpec.setElementFormatPropertyById(this,'fontColor',color.toHexString());
+			});
 			panel.save();
 		}
 	},
 
 	bgcolor_callback: function(panel) {
 	return function (color){
-			panel.reportSpec.setElementFormatPropertyById(panel.element,'backgroundColor',color.toHexString());
+			$.each(panel.element_format(), function() {  
+				panel.reportSpec.setElementFormatPropertyById(this,'backgroundColor',color.toHexString());
+			});
 			panel.save();
 		}
 	},
@@ -72,12 +85,18 @@ var ElementFormatPanel = Backbone.View.extend({
 	},
 
 	font_select: function(event){
-		this.reportSpec.setElementFormatPropertyById(this.element,'fontName',$(event.target).val());		
+		var panel = this;
+		$.each(panel.element_format(), function() { 
+			panel.reportSpec.setElementFormatPropertyById(this,'fontName',$(event.target).val());		
+		});
 		this.save();
 	},
 
 	size_select: function(event){
-		this.reportSpec.setElementFormatPropertyById(this.element,'fontSize',$(event.target).val());		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'fontSize',$(event.target).val());		
+		});
 		this.save();
 	},
 
@@ -180,7 +199,7 @@ var ElementFormatPanel = Backbone.View.extend({
 		if(format.fontItalic){
 			$(this.el).find('.fontstyle-italic').addClass('on');
 		}
-		if(format.fontUnderlined){
+		if(format.fontUnderline){
 			$(this.el).find('.fontstyle-udl').addClass('on');
 		}
 		
@@ -307,49 +326,72 @@ var ElementFormatPanel = Backbone.View.extend({
 	//-----------------------------------------
 	
 	align_left: function(event) {
-		this.reportSpec.setElementFormatPropertyById(this.element,'horizontalAlignment',
-		HorizontalElementAlignment.LEFT);		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
+			HorizontalElementAlignment.LEFT);
+		});
 		this.save();
 	},
 
 	align_center: function(event) {
-		this.reportSpec.setElementFormatPropertyById(this.element,'horizontalAlignment',
-		HorizontalElementAlignment.CENTER);		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
+			HorizontalElementAlignment.CENTER);		
+		});
 		this.save();
 	},
 
 	align_right: function(event) {
-		this.reportSpec.setElementFormatPropertyById(this.element,'horizontalAlignment',
-		HorizontalElementAlignment.RIGHT);		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
+			HorizontalElementAlignment.RIGHT);
+		});
 		this.save();
 	},
 
 	align_top: function(event) {
-		this.reportSpec.setElementFormatPropertyById(this.element,'verticalAlignment',
-		VerticalElementAlignment.TOP);		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
+			VerticalElementAlignment.TOP);		
+		});
 		this.save();
 	},
 
 	align_middle: function(event) {
-		this.reportSpec.setElementFormatPropertyById(this.element,'verticalAlignment',
-		VerticalElementAlignment.MIDDLE);		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
+			VerticalElementAlignment.MIDDLE);
+		});
 		this.save();
 	},
 
 	align_bottom: function(event) {
-		this.reportSpec.setElementFormatPropertyById(this.element,'verticalAlignment',
-		VerticalElementAlignment.BOTTOM);		
+		var panel = this;
+		$.each(panel.element_format(), function() {  
+			panel.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
+			VerticalElementAlignment.BOTTOM);
+		});
 		this.save();
 	},
 
 	fontstyle_bold: function(event) {
 
 		$(this.el).find('.fontstyle-bold').toggleClass('on');
-
+		var panel = this;
+		
 		if($(this.el).find('.fontstyle-bold').hasClass('on')){
-			this.reportSpec.setElementFormatPropertyById(this.element,'fontBold',true);		
+			$.each(panel.element_format(), function() {  
+				panel.reportSpec.setElementFormatPropertyById(this,'fontBold',true);
+			});
 		}else{
-			this.reportSpec.setElementFormatPropertyById(this.element,'fontBold',false);	
+			$.each(panel.element_format(), function() {
+				panel.reportSpec.setElementFormatPropertyById(this,'fontBold',false);	
+			});
 		}
 		this.save();
 	},
@@ -357,11 +399,16 @@ var ElementFormatPanel = Backbone.View.extend({
 	fontstyle_italic: function(event) {
 
 		$(this.el).find('.fontstyle-italic').toggleClass('on');
-
+		var panel = this;
+		
 		if($(this.el).find('.fontstyle-italic').hasClass('on')){
-			this.reportSpec.setElementFormatPropertyById(this.element,'fontItalic',true);		
+			$.each(panel.element_format(), function() {
+			panel.reportSpec.setElementFormatPropertyById(this,'fontItalic',true);		
+			});
 		}else{
-			this.reportSpec.setElementFormatPropertyById(this.element,'fontItalic',false);
+			$.each(panel.element_format(), function() {
+				panel.reportSpec.setElementFormatPropertyById(this,'fontItalic',false);
+			});
 		}
 		this.save();
 	},
@@ -369,11 +416,16 @@ var ElementFormatPanel = Backbone.View.extend({
 	fontstyle_udl: function(event) {
 
 		$(this.el).find('.fontstyle-udl').toggleClass('on');
-
+		var panel = this;
+		
 		if($(this.el).find('.fontstyle-udl').hasClass('on')){
-			this.reportSpec.setElementFormatPropertyById(this.element,'fontUnderline',true);		
+			$.each(panel.element_format(), function() {
+				panel.reportSpec.setElementFormatPropertyById(this,'fontUnderline',true);		
+			});
 		}else{
-			this.reportSpec.setElementFormatPropertyById(this.element,'fontUnderline',false);	
+			$.each(panel.element_format(), function() {
+				panel.reportSpec.setElementFormatPropertyById(this,'fontUnderline',false);
+			});
 		}
 		this.save();
 	}

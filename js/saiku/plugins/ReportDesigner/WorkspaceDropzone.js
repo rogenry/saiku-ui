@@ -12,7 +12,8 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
         this._super("render", arguments);
 
 
-        if(Settings.MODE === 'crosstab') {
+        console.log('dropzones=' + this.workspace.mode);
+        if(this.workspace.mode === 'crosstab') {
             $(this.el).find('.fields_list[title=REL_GROUPS]').hide();
         } else {
             $(this.el).find('.fields_list[title=COL_GROUPS]').hide();
@@ -266,7 +267,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             console.log("edit Filter");
 
             var constraint = this.workspace.metadataQuery.getConstraint(index);
-            var filterModel = FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
+            var filterModel = reportDesigner.mql.FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
 
             (new SimpleFilterDialog({
                 filterModel: filterModel,

@@ -72,9 +72,13 @@ var TemplatesModal = Modal.extend({
 		return false;
 	},
 	fetch_values: function() {
-		this.workspace.query.action.get("/SETTINGS", {
+		var jqxhr = $.get("http://localhost:8080/saiku-reporting-webapp/rest/saiku-adhoc/rest/discover/getTemplates", function() {
+  			alert("success");
+		}).done(function() { alert("second success"); }).fail(function() { alert("error"); }).always(function() { alert("finished"); });
+
+		/*this.workspace.query.action.get("/SETTINGS", {
 			success: this.populate
-		});
+		});*/
 	},
 	populate: function(model, response) {
 

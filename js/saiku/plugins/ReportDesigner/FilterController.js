@@ -1,3 +1,7 @@
+var reportDesigner = reportDesigner || {};
+    reportDesigner.mql = reportDesigner.mql || {};
+var exports = reportDesigner.mql;
+
 (function(window) {
 
     var FilterController = function() {};
@@ -8,7 +12,7 @@
 
     FilterController.formulaConstraintToFilterModel = function(constraint, query) {
 
-        var js = saiku.mql.Phomp.formulaToJs(constraint.condition.replace("<![CDATA[", "").replace("]]>", ""));
+        var js = reportDesigner.mql.Phomp.formulaToJs(constraint.condition.replace("<![CDATA[", "").replace("]]>", ""));
 
         var filterModel = {};
 

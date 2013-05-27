@@ -113,7 +113,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		var $colgroups = $(this.workspace.el).find('.colgroups ul li.d_dimension');
 		var $rowgroups = $(this.workspace.el).find('.rowgroups ul li.d_dimension');
 
-		if(Settings.MODE === 'crosstab') {
+		if(this.workspace.mode === 'crosstab') {
 			this.build_sorts($rowgroups);
 			this.build_sorts($colgroups);
 			this.build_sorts($measures);
@@ -125,7 +125,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		if($measures.size() == 0) {
 			var message = '<tr><td><span class="i18n">You need to select at least one (non-calculated) Column for a valid query.</td></tr>';
 			$(this.workspace.el).find('.report_inner').html(message);
-			$(this.workspace.el).find('.workspace_results div').html(message);
+			//$(this.workspace.el).find('.workspace_results div').html(message);
 			return;
 		}
 
@@ -178,6 +178,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 
     move_dimension: function(dimension, target, indexFrom, index, uuid) {
 		$(this.workspace.el).find('.run').removeClass('disabled_toolbar');
+		$(this.workspace.el).find('.save').removeClass('disabled_toolbar');
 
 		var mc;
 		if(indexFrom === undefined){
@@ -222,7 +223,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		switch(target) {
 		case "MEASURES":
 			var agg = "NONE";
-			if(Settings.MODE === 'crosstab') agg = "GROUPSUM"; //TODO: what should be the default here?
+			if(this.workspace.mode === 'crosstab') agg = "GROUPSUM"; //TODO: what should be the default here?
 			var field = new reportDesigner.FieldDefinition({
 				fieldId: mc.id,
 				fieldName: mc.name,

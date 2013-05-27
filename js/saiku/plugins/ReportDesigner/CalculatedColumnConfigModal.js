@@ -28,9 +28,9 @@
         if(this.index==-1){
             this.columnDefinition =  new reportDesigner.FieldDefinition({
                 fieldId: "calcolumn", 
-                fieldName: "Calculated Column", 
+                fieldName: "Untitled", 
                 fieldDescription: "",
-                formula: ''});
+                formula: '"fomula"'});
 
         }else{
             this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
@@ -107,7 +107,7 @@
       var $logicalColumn = $('.dimension_tree').find('a[title="calc_column"]').parent();
 
       var $clone = $logicalColumn.clone()
-      .addClass('d_measure')
+      .addClass('d_dimension')
       .addClass('calculated')
       .attr("id",_.uniqueId('uid-'))
       .removeClass('hide');

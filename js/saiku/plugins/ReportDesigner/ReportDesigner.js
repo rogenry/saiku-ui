@@ -48,8 +48,19 @@ var ReportDesigner = Backbone.View.extend({
         //var splits = event.id.split('-');
  		//var ele = splits[2] + '-' + splits[3] + '-' + splits[4];
 
-		this.workspace.query.lastEditElement = event.id;
-
+		//this.workspace.query.lastEditElement = event.id;
+		var rep = this;
+		this.workspace.query.lastEditElement = []; //new Array
+		var adhocs = $('.adhoc-highlight').toArray();
+		var filtered = [];
+		$.each(adhocs, function(){
+			filtered.push($(this).attr('id'));
+		});
+		filtered = _.uniq(filtered);
+		$.each(filtered, function () {
+			rep.workspace.query.lastEditElement.push(this);
+		});
+		
         this.workspace.edit_panel.fetch_values(event.id, event.type);
 
     },

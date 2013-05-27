@@ -2,7 +2,9 @@ var reportDesigner = reportDesigner || {};
 
 reportDesigner.Workspace = Workspace.extend({
     
-    initialize: function(args) {
+    initialize: function(args, options) {
+
+        this.mode = this.options.mode;
 
         this._super("initialize", args);
 

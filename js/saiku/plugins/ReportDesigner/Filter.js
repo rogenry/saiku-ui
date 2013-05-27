@@ -55,7 +55,7 @@ var FilterRow = Backbone.View.extend({
 
             if(this.filterModel.columnMeta.type == DataType.DATE){
                 $(this.el).find(".value").datepicker({
-                dateFormat: "dd.mm.yy",
+                dateFormat: "yy-mm-dd",
                 changeMonth: true,
                 changeYear: true,
                 //defaultDate: selectedDateFrom,

@@ -36,7 +36,8 @@ var InplaceEdit = Backbone.Model.extend({
 
         function() {
             if(!$('.resizer.ui-draggable-dragging').length) {
-                that.block_highlight($(this), "report-hover");
+				var pseudoEvent = jQuery.Event("click");
+                that.block_highlight($(this), "report-hover", pseudoEvent);
             }
         },
 
@@ -44,7 +45,13 @@ var InplaceEdit = Backbone.Model.extend({
 
         //simulate click on last edited element    
         if(this.query.lastEditElement != null) {
-            $(args.report.el).find("." + this.query.lastEditElement).first().click();
+            
+			$.each(this.query.lastEditElement, function() {
+				var pseudoEvent = jQuery.Event("click");
+				pseudoEvent.ctrlKey = true;
+				$(args.report.el).find("#" + this).trigger(pseudoEvent);
+			});
+			//$(args.report.el).find("." + this.query.lastEditElement).first().click();
         }
 
     },
@@ -83,7 +90,7 @@ var InplaceEdit = Backbone.Model.extend({
 
         $('#dragzone').remove();
 
-        this.block_highlight($target, 'adhoc-highlight');
+        this.block_highlight($target, 'adhoc-highlight', event);
 
         this.query.workspace.trigger('report:edit', {
             type: splits[1],
@@ -96,9 +103,9 @@ var InplaceEdit = Backbone.Model.extend({
         }
     },
 
-    block_highlight: function(target, clazzToAdd) {
-
-        var clazz = target.attr('class').split(/\s+/);
+    block_highlight: function(target, clazzToAdd, event) {
+		
+		var clazz = target.attr('class').split(/\s+/);
 
         var elementClass;
 
@@ -115,9 +122,15 @@ var InplaceEdit = Backbone.Model.extend({
 
         //all elements with the same class will be highlighted
         if($('.' + elementClass).hasClass(clazzToAdd)) {
-            $('td').removeClass(clazzToAdd);
+			if(event.ctrlKey) {
+				$('.' + elementClass).removeClass(clazzToAdd);
+			} else {
+				$('td').removeClass(clazzToAdd);
+			}
         } else {
-            $('td').removeClass(clazzToAdd);
+            if(!event.ctrlKey) {
+				$('td').removeClass(clazzToAdd);
+			}
             $('.' + elementClass).addClass(clazzToAdd);
         }
 
