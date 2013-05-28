@@ -31,8 +31,7 @@ var SelectionsModal = Modal.extend({
         'change #use_result': 'use_result_action',
         'dblclick select option' : 'click_move_selection',
         'click div.selection_buttons a.form_button': 'move_selection',
-        'click div.updown_buttons a.form_button': 'updown_selection',
-
+        'click div.updown_buttons a.form_button': 'updown_selection'
     },    
 
     show_unique_option: false,
@@ -92,7 +91,7 @@ var SelectionsModal = Modal.extend({
     fetch_members: function(model, response) {
         this.available_members = response;
 
-        this.workspace.query.action.get("/axis/" + this.axis + "/", { 
+        this.workspace.query.action.get("/axis/" + this.axis + "/dimension/" + this.member.dimension, { 
             success: this.populate 
         });
     },
@@ -107,9 +106,13 @@ var SelectionsModal = Modal.extend({
 
             this.selected_members = [];
 
-            var this_dim_sel = _.detect(response, function(obj) {
+            var this_dim_sel = response;
+
+            /*
+            _.detect(response, function(obj) {
                 return (obj.name == this.member.dimension || encodeURIComponent(obj.name) == this.member.dimension);
             }, this);
+            */
             if (typeof this_dim_sel != "undefined" && typeof this_dim_sel.selections != "undefined") {
                 this.selected_members = this_dim_sel.selections;
             }
@@ -122,7 +125,7 @@ var SelectionsModal = Modal.extend({
                 var member = this.selected_members[j];
                 if (encodeURIComponent(member.levelUniqueName) == this.member.level &&
                     member.type == "MEMBER") {
-                    selected_members_opts += "<option value='" + encodeURIComponent(member.uniqueName) + "'>" + member.caption + "</option>";
+                    selected_members_opts += '<option value="' + encodeURIComponent(member.uniqueName) + '">' + member.caption + "</option>";
                     used_members.push(member.caption);
                 }
             }
@@ -139,7 +142,7 @@ var SelectionsModal = Modal.extend({
             var available_members_opts = "";
             for (var i = 0; i < this.available_members.length; i++) {
                 var member = this.available_members[i];
-                available_members_opts += "<option value='" + encodeURIComponent(member.uniqueName) + "'>" + member.caption + "</option>";
+                available_members_opts += '<option value="' + encodeURIComponent(member.uniqueName) + '">' + member.caption + "</option>";
             }
             if (this.available_members.length > 0) {
                 $(available_members_opts).appendTo($(this.el).find('.available_selections select'));

@@ -46,7 +46,9 @@ var Chart = Backbone.View.extend({
         // Create a unique ID for use as the CSS selector
         this.id = _.uniqueId("chart_");
         $(this.el).attr({ id: this.id });
-        this.cccOptions.canvas = this.id;
+        $('<div id="canvas_' + this.id + '"></div>').appendTo($(this.el));
+        this.processing = $('<div id="processing_' + this.id + '"><span class="processing_image">&nbsp;&nbsp;</span> <span class="i18n">Running query...</span></div>');
+        this.cccOptions.canvas = 'canvas_' + this.id;
         this.cccOptions = this.getQuickOptions(this.cccOptions);
 
         this.data = null;
@@ -61,7 +63,8 @@ var Chart = Backbone.View.extend({
             self.data = {};
             self.data.resultset = [];
             self.data.metadata = [];
-            self.render_chart();
+            $(self.el).hide();
+            self.processing.show();
             return false;
         });
 
@@ -73,7 +76,16 @@ var Chart = Backbone.View.extend({
         
         // Listen to adjust event and rerender chart
         this.workspace.bind('workspace:adjust', this.render);
-        
+         var pseudoForm = "<div style='display:none'><form id='svgChartPseudoForm' target='_blank' method='POST'>" +
+                "<input type='hidden' name='type' class='type'/>" +
+                "<input type='hidden' name='svg' class='svg'/>" +
+                "</form></div>";
+        if (typeof isIE !== "undefined") {
+            pseudoForm = "<div></div>";
+        }
+        this.nav =$(pseudoForm);
+
+        /*
         // Create navigation
         var exportoptions = "<div><a class='hide' href='#charteditor' id='acharteditor' /><!--<a class='editor' href='#chart_editor'>Advanced Properties</a>-->Export to: " +
                 "<a class='export' href='#png' class='i18n'>PNG</a>, " +
@@ -87,7 +99,9 @@ var Chart = Backbone.View.extend({
                 "</form>";
 
         var chartnav = exportoptions + "</div>";
-        
+        if (typeof isIE !== "undefined") {
+            chartnav = "<div></div>";
+        }
         // Create navigation
         this.nav = $(chartnav).css({
         		    'padding-bottom': '10px'
@@ -110,6 +124,7 @@ var Chart = Backbone.View.extend({
                     'border': '1px solid #ccc', 
                     padding: '5px' 
                 });
+        */
         /* XXX - enable again later
         $(this.nav).append('<div style="display:none;"> <div id="charteditor" class="chart_editor"></div></div>');
         
@@ -128,11 +143,10 @@ var Chart = Backbone.View.extend({
         if (! $(this.workspace.querytoolbar.el).find('.render_chart').hasClass('on')) {
             return;
         }
-        Saiku.ui.block("Updating chart data....");
+        //Saiku.ui.block("Updating chart data....");
     },
 
-    exportChart: function(event) {
-        var type = $(event.target).attr('href').replace('#', '');
+    exportChart: function(type) {
         var svgContent = new XMLSerializer().serializeToString($('svg')[0]);
         var rep = '<svg xmlns="http://www.w3.org/2000/svg" ';
         if (svgContent.substr(0,rep.length) != rep) {
@@ -151,7 +165,8 @@ var Chart = Backbone.View.extend({
     	// Append chart to workspace
         $(this.workspace.el).find('.workspace_results')
             .prepend($(this.el).hide())
-            .prepend(this.nav.hide());
+            .prepend(this.nav.hide())
+            .prepend(this.processing.hide());
     },
     
     getData: function() {
@@ -159,12 +174,13 @@ var Chart = Backbone.View.extend({
     },
 
     show: function(event, ui) {
-        $(this.el).show();
+        /*
         if ('MODE' in Settings && Settings.MODE == 'table') {
             $(this.nav).hide();    
         } else {
             $(this.nav).show();
         }
+        
         $('a#acharteditor').fancybox(
                                    {
                                    'autoDimensions'    : false,
@@ -176,7 +192,7 @@ var Chart = Backbone.View.extend({
                                    'type'              : 'inline'
                                    }
                                );
-
+        */
         if (this.cccOptions.width <= 0) {
             this.cccOptions.width = $(this.workspace.el).find('.workspace_results').width() - 40;
         }
@@ -189,6 +205,26 @@ var Chart = Backbone.View.extend({
     chart_editor: function() {
 		$('a#acharteditor').click();
 		return true;
+    },
+
+    export_button: function(event) {
+        var self = this;
+        $target = $(event.target).hasClass('button') ? $(event.target) : $(event.target).parent();
+        $target.contextMenu();
+    },
+
+    button: function(event) {
+        $target = $(event.target).hasClass('button') ? $(event.target) : $(event.target).parent();
+        if ($target.hasClass('chartoption')) {
+            $target.parent().siblings().find('.chartoption.on').removeClass('on');
+            $target.addClass('on');
+            if ($(this.workspace.querytoolbar.el).find('.render_chart').hasClass('on')) {
+                $(this.el).hide();
+            }
+
+
+        }
+        return false;
     },
 
     stackedBar: function() {
@@ -313,7 +349,7 @@ var Chart = Backbone.View.extend({
             axisSizeMax: "40%",
             plotFrameVisible : false,
             orthoAxisMinorTicks : false,
-            colors: ["#4bb2c5", "#c5b47f", "#EAA228", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"]
+            colors: ["#1f77b4", "#aec7e8", "#ff7f0e", "#ffbb78", "#2ca02c", "#98df8a", "#d62728", "#ff9896", "#9467bd", "#c5b0d5", "#8c564b", "#c49c94", "#e377c2", "#f7b6d2", "#7f7f7f", "#c7c7c7", "#bcbd22", "#dbdb8d", "#17becf", "#9edae5" ]
         },
         
         HeatGridChart: {
@@ -340,9 +376,14 @@ var Chart = Backbone.View.extend({
             multiChartMax: 30,
             smallTitleFont: "bold 14px sans-serif",
             valuesVisible: true,
-            explodedSliceRadius: '5%',
             extensionPoints: {
                 slice_innerRadiusEx: '40%'
+            },
+            clickable: true,
+            clickAction: function(scene) {
+                this.chart.root.options.explodedSliceIndex = this.index;
+                this.chart.root.options.explodedSliceRadius = '10%';
+                this.chart.root.render(true, true, false);
             }
             //valuesLabelStyle: 'inside'
         },
@@ -368,9 +409,9 @@ var Chart = Backbone.View.extend({
         
         var options = _.extend({
                 type:   chartType,
-                canvas: this.id,
+                canvas: 'canvas_' + this.id,
                 width:  workspaceResults.width() - 40,
-                height: workspaceResults.height() - 40,
+                height: workspaceResults.height() - 40
             },
             this.cccOptionsDefault.Base,
             this.cccOptionsDefault[chartType], // may be undefined
@@ -396,7 +437,11 @@ var Chart = Backbone.View.extend({
         if (! $(this.workspace.querytoolbar.el).find('.render_chart').hasClass('on')) {
             return;
         }
-
+        var workspaceResults = $(this.workspace.el).find(".workspace_results");
+        this.cccOptions = _.extend(this.cccOptions, {
+                width:  workspaceResults.width() - 40,
+                height: workspaceResults.height() - 40
+        });
         /* XXX - enable later
         var start = new Date().getTime();
         this.editor.chartDefinition = _.clone(this.cccOptions);
@@ -410,14 +455,17 @@ var Chart = Backbone.View.extend({
             crosstabMode: true,
             seriesInRows: false
         });
-        
+
         try {
             this.chart.render();
-            Saiku.i18n.automatic_i18n();
         } catch (e) {
             $(this.el).text("Could not render chart");
         }
-        Saiku.ui.unblock();
+        this.processing.hide();
+        $(this.el).fadeIn(1000);
+        Saiku.i18n.translate();
+
+        
         //var end = new Date().getTime();
         //console.log("Duration: " + (end - start));
 
@@ -439,7 +487,6 @@ var Chart = Backbone.View.extend({
         this.data.width = 0;
 
         if (typeof args.data == "undefined" || args.data == null || args.data.cellset == null ) {
-            Saiku.ui.unblock();
             return false;
         }
         var cellset = args.data.cellset;
@@ -534,8 +581,8 @@ var Chart = Backbone.View.extend({
             this.render_chart();
         } else {
             $(this.el).text("No results");
+            this.processing.hide();
         }
-        Saiku.ui.unblock();
     }
 });
 

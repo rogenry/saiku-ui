@@ -294,28 +294,29 @@
         </script>
 
         <script type="text/x-jquery-tmpl" id="template-workspace-dropzones">
-        <div class="workspace_fields">
+        <div class="workspace_fields disabled">
             <div class="fields_list" title="COLUMNS">
                 <div class="fields_list_header disabled_toolbar"><span class="i18n">Columns</span><span class="dropdown"></span></div>
                 <div class="fields_list_body columns">
                     <ul class="connectable"></ul>
                 </div>
+                <span class="clear_axis i18n hide" title="Clear Axis"></span>
                 <div class="clear"></div>
             </div>
             <div class="fields_list" title="ROWS">
                 <div class="fields_list_header disabled_toolbar"><span class="i18n">Rows</span><span class="dropdown"></span></div>
                 <div class="fields_list_body rows">
-                    <ul class="connectable">
-                    </ul>
+                    <ul class="connectable"></ul>
                 </div>
+                <span class="clear_axis i18n hide" title="Clear Axis"></span>
                 <div class="clear"></div>
             </div>
             <div class="fields_list" title="FILTER">
                 <div class="fields_list_header disabled_toolbar"><span class="i18n">Filter</span><span class="dropdown"></span></div>
                 <div class="fields_list_body filter">
-                    <ul class="connectable">
-                    </ul>
+                    <ul class="connectable"></ul>
                 </div>
+                <span class="clear_axis i18n hide" title="Clear Axis"></span>
                 <div class="clear"></div>
             </div>
         </div>
@@ -323,6 +324,9 @@
         
         <script type="text/x-jquery-tmpl" id="template-workspace-toolbar">
         <ul>
+            <li><a href="#new_query" 
+                class="i18n new disabled_toolbar button sprite" 
+                title="New query"></a></li>
             <li><a href="#open_query" 
                 class="i18n open button sprite" 
                 title="Open query"></a></li>
@@ -393,8 +397,9 @@
                 title="Toggle Chart"></a></li>
         </ul>
         <ul class='options table hide'>
-            <li class="seperator_vertical label"><a class="i18n label disabled_toolbar">Options:</a></li>
-            <li><a href="#spark_bar" 
+                        <!--<li class="seperator_vertical label"><a class="i18n label disabled_toolbar">Options:</a></li> -->
+
+            <li class="seperator_vertical"><a href="#spark_bar" 
                 class="i18n spark_bar tablebutton button disabled_toolbar" 
                 title="Spark Bar"></a></li>
             <li><a href="#spark_line" 
@@ -406,36 +411,37 @@
 
         </ul>
         <ul class='options chart hide'>
-            <li class="seperator_vertical"><a class="i18n label disabled_toolbar">Options:</a></li>
+            <li class="seperator_vertical"><a href ="#export_button"
+                class="disabled_toolbar export_button menu button"><span class="i18n">Export</span><span class="dropdown"></span></a></li>
             <li><a href="#bar" 
-                class="i18n bar button disabled_toolbar" 
+                class="i18n bar chartoption button disabled_toolbar" 
                 title="Bar"></a></li>
             <li><a href="#stackedBar" 
-                class="i18n stackedBar on button disabled_toolbar" 
+                class="i18n stackedBar chartoption on button disabled_toolbar" 
                 title="Stacked Bar"></a></li>
             <li><a href="#stackedBar100" 
-                class="i18n stackedBar100 button disabled_toolbar" 
+                class="i18n stackedBar100 chartoption button disabled_toolbar" 
                 title="Bar 100%"></a></li>
             <li><a href="#multiplebar" 
-                class="i18n multiple button disabled_toolbar" 
+                class="i18n multiple chartoption button disabled_toolbar" 
                 title="Multiple Bar Chart"></a></li>
             <li><a href="#line" 
-                class="i18n line button disabled_toolbar" 
+                class="i18n line chartoption button disabled_toolbar" 
                 title="Line"></a></li>
             <li><a href="#area" 
-                class="i18n area button disabled_toolbar" 
+                class="i18n area chartoption button disabled_toolbar" 
                 title="Area"></a></li>
             <li><a href="#heatgrid" 
-                class="i18n heatgrid tablebutton button disabled_toolbar" 
+                class="i18n heatgrid chartoption tablebutton button disabled_toolbar" 
                 title="Heat Grid"></a></li>
             <li><a href="#dot" 
-                class="i18n dot button disabled_toolbar" 
+                class="i18n dot chartoption button disabled_toolbar" 
                 title="Dot"></a></li>
             <li><a href="#waterfall" 
-                class="i18n waterfall button disabled_toolbar" 
+                class="i18n waterfall chartoption button disabled_toolbar" 
                 title="Waterfall"></a></li>
             <li><a href="#pie" 
-                class="i18n pie button disabled_toolbar" 
+                class="i18n pie chartoption button disabled_toolbar" 
                 title="Pie"></a></li>
            <!-- <li><a href="#chart_editor" 
                 class="i18n custom_chart button disabled_toolbar" 
@@ -468,7 +474,10 @@
             <div class="sidebar queries" style="width: 300px">
                 <h3 class="top" style="padding-top:3px;padding-bottom:2px;">
                     <b><span class="i18n">Search:</span></b> &nbsp;
-                    <input type="text" class="search_file"></input>
+                    <span class="search">
+                        <input type="text" class="search_file"></input>
+                        <span class="cancel_search"></span>
+                    </span>
                     <span class="add_folder_button"><a href='#' class='add_folder'></a></span>
                 </h3>
                 <div class="sidebar_inner">
