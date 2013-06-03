@@ -14,10 +14,9 @@ var exports = reportDesigner.mql;
  */
 reportDesigner.Settings = {
     REPORTING_WEBAPP: "/saiku-reporting",
-    //REPORTING_REST_MOUNT_POINT: "/rest/saiku/",
-    REPORTING_REST_MOUNT_POINT: "../../../saiku-reporting-webapp/rest/saiku-adhoc/rest",
     METADATA_PREFETCH: true,
     RESOURCE_LOCATION: "/../resources/",
+    REST_MOUNT_POINT: "/rest/saiku-reporting/",
     START_WITH_REPORT: true,
     DRAG_RESIZE: false
     /*
