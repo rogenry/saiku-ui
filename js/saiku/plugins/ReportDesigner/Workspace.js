@@ -234,6 +234,10 @@ reportDesigner.Workspace = Workspace.extend({
         this._super("adjust", arguments);
     },
 
+    remove_dimension: function(event, ui) {
+        this.drop_zones.remove_dimension(event, ui);
+    }
+
 });
 
 Workspace = reportDesigner.Workspace;

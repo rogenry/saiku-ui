@@ -22,7 +22,7 @@ var Settings = {
     BIPLUGIN: true,
     BASE_URL: "",
     TOMCAT_WEBAPP: "/saiku",
-    REST_MOUNT_POINT: "/rest/saiku-reporting/",
+    REST_MOUNT_POINT: "/rest/saiku/",
     DIMENSION_PREFETCH: true,
     ERROR_LOGGING: false,
     // number of erroneous ajax calls in a row before UI cant recover

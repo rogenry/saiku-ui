@@ -48,10 +48,10 @@ var exports = reportDesigner.mql;
             var val =  value.replace(/"/g, "") ;
             formula = 'LIKE(' + column + ';"%' + value.replace(/"/g, "") + '%")';
         } else if(model.conditionType == ConditionType.EQUAL) {
-            if(true) { //check here if we have one value or an array
-                formula = 'EQUALS(' + column + ';' + value + ')';
+            if($.isArray(model.value) && ! (model.value.length == 1)) { 
+                formula = 'IN(' + column + ';' + value + ')';        
             } else {
-                formula = 'IN(' + column + ';' + value + ')';
+                formula = 'EQUALS(' + column + ';' + value + ')';  
             }
         } else if(model.conditionType == "LESS_THAN") {
             formula = column + '<' + value;
@@ -76,7 +76,7 @@ var exports = reportDesigner.mql;
         if(model.value == null) return "";
 
         if($.isArray(model.value)) {
-            return model.value.join(";");
+            return '"' + model.value.join('";"') + '"';
         } else if(model.columnMeta.type == DataType.DATE) {
             return 'DATEVALUE("' + model.value + '")';
         }

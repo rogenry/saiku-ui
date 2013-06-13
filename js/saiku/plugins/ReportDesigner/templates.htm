@@ -216,40 +216,44 @@
         </li>
     </ul>
     <hr id="separatorline">
-        <div class="simple_filter_row">
-        </div>
-        <div class="select_from_list">
-            <div class="available_selections">
-                <label for="filter_selections">Search: &nbsp;
-                </label>
-                <input name="filter_selections" id="filter_selections" type="text"
-                    class="filterbox" />
-                <br />
-                Available values:
-                <br />
+    <div>
+        <label for="prompt_parameter">Use as a prompt</label>
+        <input name="prompt_parameter" id="prompt_parameter" type="checkbox" />
+        &nbsp;&nbsp;
+        <label for="parameter_name">Name</label>
+        <input name="parameter_name" type="text" class="parameter_name" />
+        &nbsp;&nbsp;
+        <label for="parameter_label">Prompting text</label>
+        <input name="parameter_label" type="text" class="parameter_label" />
+    </div>
+    <hr id="separatorline">
+    <div class="simple_filter_row"></div>
+    <div class="select_from_list">
+        <div class="available_selections">
+            <label for="filter_selections" class="i18n">Search:</label> &nbsp;<input name="'filter_selections" id="filter_selections" type="text" class="filterbox" /> <br />
+                <span class="i18n">Available values:</span><br/>
                 <select multiple disabled>
                 </select>
-            </div>
-            <div class="selection_buttons">
-                <a class="form_button" href="#move_selection" id="add_members">&nbsp;&gt;&nbsp;
-                </a>
-                <br>
-                    <br>
-                        <a class="form_button" href="#move_selection" id="add_all_members">&gt;&gt;</a>
-                        <br>
-                            <br>
-                                <a class="form_button" href="#move_selection" id="remove_all_members">&lt;&lt;</a>
-                                <br>
-                                    <br>
-                                        <a class="form_button" href="#move_selection" id="remove_members">&nbsp;&lt;&nbsp;
-                                        </a>
-            </div>
-            <div class="used_selections">
-                Selected values:
-                <br />
-                <select multiple disabled></select>
-            </div>
         </div>
+        <div class="selection_buttons">
+            <a class="form_button" href="#move_selection" id="add_members">&nbsp;&gt;&nbsp;</a><br><br>
+            <a class="form_button" href="#move_selection" id="add_all_members">&gt;&gt;</a><br><br>
+            <a class="form_button" href="#move_selection" id="remove_all_members">&lt;&lt;</a><br><br>
+            <a class="form_button" href="#move_selection" id="remove_members">&nbsp;&lt;&nbsp;</a>
+        </div>
+        <div class="used_selections">
+            <span class="i18n">Used values:</span><br/>
+            <select multiple disabled></select>
+        </div>
+        <!--div class="updown_buttons">
+            <a class="form_button" href="#up" id="up_members">&nbsp;&uarr;&nbsp;</a><br><br>
+            <a class="form_button" href="#down" id="down_members">&nbsp;&darr;&nbsp;</a><br><br>
+        </div-->
+        <!--div class="options">
+            <input name="show_unique" id="show_unique" type="checkbox" /><label for="show_unique" class="i18n">Show Unique Names</label><br />
+            <input name="use_result" id="use_result" type="checkbox" /><label for="use_result" class="i18n">Use Result</label>
+        </div-->
+    </div>
 </script>
 
 

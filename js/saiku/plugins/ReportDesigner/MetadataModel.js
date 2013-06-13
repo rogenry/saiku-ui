@@ -20,7 +20,7 @@
  */
 var MetadataModel = Backbone.Model.extend({
     initialize: function(args) {
-        this.url = encodeURI(Settings.REPORTING_REST_MOUNT_POINT + "/discover/" + args.path + "/model");
+        this.url = encodeURI("metadata/discover/" + args.path + "/model");
     },
     
     parse: function(response) {

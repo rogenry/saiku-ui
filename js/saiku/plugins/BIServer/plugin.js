@@ -62,14 +62,35 @@ var puc = {
                 }});
             }
         });
-    }
+    },
+
+    save_report_to_solution: function(filename, solution, path, type, overwrite) {
+        var query = Saiku.tabs._tabs[0].content.query;
+
+        filename = filename 
+            && filename.length > ".srpt".length
+            && filename.substring(filename.length - ".srpt".length,filename.length) == ".srpt" ? filename : filename + ".srpt";
+
+        var path = (solution ? (solution + "/") : "")
+                        + (path ? (path + "/") : "")
+                        + (filename || "");
+
+        (new SavedQuery({
+                        path: path,
+                        model: JSON.stringify(query.workspace.reportSpec)
+                })).save({ success: function() {
+                    puc.refresh_repo();
+        }});
+
+    }   
 };
 
 /**
  * Objects required for BI server integration
  */
 var RepositoryBrowserControllerProxy = function() {
-    this.remoteSave = puc.save_to_solution;
+    //this.remoteSave = puc.save_to_solution;
+    this.remoteSave = puc.save_report_to_solution;
 };
 
 var Wiz = function() {
@@ -90,7 +111,7 @@ var savePg0 = function() {};
  */
 if (Settings.BIPLUGIN) {
     Settings.PLUGIN = true;
-    Settings.REST_URL = "../";
+    Settings.REST_URL = "../../saiku-reporting/";
 
 
     $(document).ready(function() {
@@ -133,6 +154,13 @@ var BIPlugin = {
                 args.data.cellset.length > 0;
             puc.allowSave(isAllowed);
         });
+
+        workspace.bind('query:report', function(args) {
+            var isAllowed = args.data && args.data.data.length > 0;
+            puc.allowSave(isAllowed);
+        });
+
+
     }
 };
 

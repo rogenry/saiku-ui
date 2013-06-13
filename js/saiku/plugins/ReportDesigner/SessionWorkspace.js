@@ -105,7 +105,7 @@ reportDesigner.SessionWorkspace = SessionWorkspace.extend({
     },
     url: function() {
         var locale = (navigator.language || navigator.browserLanguage || navigator.systemLanguage || navigator.userLanguage).substring(0, 2).toLowerCase()
-        return encodeURI(Settings.REPORTING_REST_MOUNT_POINT + "/discover/" + locale);
+        return encodeURI("metadata/discover/" + locale);
     }
 
 });

@@ -134,9 +134,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		this.workspace.reportSpec.dataSource = new reportDesigner.Datasource({
 			id: "master",
 			type: DatasourceType.CDA,
-			properties: {
-				queryString: mqlQueryString
-			}
+			queryString: mqlQueryString
 		});
 
 		if(!that.reportPerspective) {

@@ -21,6 +21,8 @@
 /**
  * Holds the resultset for a query, and notifies plugins when resultset updated
  */
+var reportDesigner = reportDesigner || {};
+
 var ReportResult = Backbone.Model.extend({
 	initialize: function(args, options) {
 		// Keep reference to query
@@ -43,7 +45,7 @@ var ReportResult = Backbone.Model.extend({
 	url: function() {
 		var template = this.query.template!=null ? this.query.template : "default";
 		var page = this.query.page!=null ? this.query.page : "1";
-		return encodeURI(Settings.REPORTING_REST_MOUNT_POINT + "/generator" + "/report/" + page) + "?nocache="+new Date();
+		return encodeURI("generator" + "/webreport/" + page) + "?nocache="+new Date();
 	},
 	fetch: function (options) {
          options.cache = false;
@@ -56,3 +58,58 @@ var ReportResult = Backbone.Model.extend({
          return Backbone.Model.prototype.fetch.call(this, options);
      }
  });
+
+var FilterResult = Backbone.Model.extend({
+
+    result: null,
+
+    parse: function(response) {
+        this.result = response;
+    },
+
+    url: function() {
+    	return encodeURI("generator/filtervalues/");
+    }
+
+});
+
+reportDesigner.SavedQuery = SavedQuery.extend({
+    
+    url: function() {
+        var u =  encodeURI("generator/resource");  
+        return u;
+    },
+
+    move_query_to_workspace: function(model, response) {
+    	console.log("moving query to workspace");
+
+    	/*
+        var file = response;
+        var filename = model.get('file');
+        for (var key in Settings) {
+            if (key.match("^PARAM")=="PARAM") {
+                var variable = key.substring("PARAM".length, key.length);
+                var Re = new RegExp("\\$\\{" + variable + "\\}","g");
+                var Re2 = new RegExp("\\$\\{" + variable.toLowerCase() + "\\}","g");
+                file = file.replace(Re,Settings[key]);
+                file = file.replace(Re2,Settings[key]);
+                
+            }
+        }
+        var query = new Query({ 
+            xml: file,
+            formatter: Settings.CELLSET_FORMATTER
+        },{
+            name: filename
+        });
+        */
+    
+
+        var tab = Saiku.tabs.add(new Workspace({ query: query }));
+        
+    }
+
+});
+
+SavedQuery = reportDesigner.SavedQuery;
+

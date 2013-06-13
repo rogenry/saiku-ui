@@ -222,7 +222,7 @@ saiku.report.Parameter = Parameter;
 		defaultConfig = {
 			id: null,
 			type: DatasourceType.METADATA,
-			properties: []
+			queryString: null
 		};
 
 		config = config || {};

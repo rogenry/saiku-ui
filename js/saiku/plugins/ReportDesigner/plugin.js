@@ -13,7 +13,7 @@ var exports = reportDesigner.mql;
  * Do all sorts of modification to the saiku app
  */
 reportDesigner.Settings = {
-    REPORTING_WEBAPP: "/saiku-reporting",
+    REPORTING_WEBAPP: "/saiku-reporting/",
     METADATA_PREFETCH: true,
     RESOURCE_LOCATION: "/../resources/",
     REST_MOUNT_POINT: "/rest/saiku-reporting/",
