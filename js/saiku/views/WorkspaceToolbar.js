@@ -174,7 +174,9 @@ var WorkspaceToolbar = Backbone.View.extend({
     
     toggle_fields: function(event) {
         var self = this;
-        $(this.el).find('.toggle_fields').toggleClass('on');
+        if (event) {
+            $(this.el).find('.toggle_fields').toggleClass('on');
+        }
         // avoid scrollbar on the right
         var wf = $('.workspace_editor').height();
         if (!$(this.el).find('.toggle_fields').hasClass('on')) {
@@ -184,10 +186,10 @@ var WorkspaceToolbar = Backbone.View.extend({
         $(this.workspace.el).find('.workspace_editor').slideToggle({
             queue: false,
             complete: function() {
-                if (!$(self.el).find('.toggle_fields').hasClass('on')) {
-                    $('.workspace_editor').css('height','');
+                if ($('.workspace_editor').is(':hidden')) {
+                    $('.workspace_editor').height(wf);
                 } else {
-                    $('.workspace_editor').hide().height(wf);
+                    $('.workspace_editor').css('height','');                    
                 }
                 
                 self.workspace.adjust();
@@ -381,7 +383,7 @@ var WorkspaceToolbar = Backbone.View.extend({
         if (Settings.MODE != "view" && Settings.MODE != "table") {
             $mdx_editor = $(this.workspace.el).find('.mdx_input');
             //$mdx_editor.width($(this.el).width()-5);
-            $(this.workspace.el).find('.workspace_editor .mdx_input, .workspace_editor .editor_info').removeClass('hide');
+            $(this.workspace.el).find('.workspace_editor .mdx_input, .workspace_editor .editor_info, .workspace_editor').removeClass('hide').show();
             this.editor = ace.edit("mdx_editor");
             this.editor.setShowPrintMargin(false);
             this.editor.setFontSize(11);

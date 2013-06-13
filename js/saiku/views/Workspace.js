@@ -59,18 +59,21 @@ var Workspace = Backbone.View.extend({
             this.query.workspace = this;
             this.query.save({}, { success: this.init_query });
         }
+
         // Flash cube navigation when rendered
         Saiku.session.bind('tab:add', this.prepare);
     },
     
-    caption: function() {
+    caption: function(increment) {
         if (this.query && this.query.name) {
             return this.query.name;
         } else if (this.query && this.query.get('name')) {
             return this.query.get('name');
         }
-        
-        return "<span class='i18n'>Unsaved query</span> (" + (Saiku.tabs.queryCount + 1) + ")";
+        if (increment) {
+            Saiku.tabs.queryCount++;
+        }
+        return "<span class='i18n'>Unsaved query</span> (" + (Saiku.tabs.queryCount) + ")";
     },
     
     template: function() {
@@ -111,6 +114,7 @@ var Workspace = Backbone.View.extend({
         $(this.el).find('.workspace_results')
             .append($(this.table.el));
         
+        this.chart.render_view();
         // Adjust tab when selected
         this.tab.bind('tab:select', this.adjust);
         $(window).resize(this.adjust);
@@ -126,12 +130,10 @@ var Workspace = Backbone.View.extend({
         $(this.el).find('.workspace_results table,.connectable')
             .html('');
         $(this.el).find('.workspace_results_info').empty();
-        $(this.chart.el).find('div').empty();
-        this.chart.render();
+        $(this.chart.el).find('div.canvas').empty();
         $(this.querytoolbar.el).find('ul.options a.on').removeClass('on');
         $(this.el).find('.fields_list[title="ROWS"] .limit').removeClass('on');
         $(this.el).find('.fields_list[title="COLUMNS"] .limit').removeClass('on');
-        this.update_caption();
         // Trigger clear event
         Saiku.session.trigger('workspace:clear', { workspace: this });
 
@@ -147,17 +149,22 @@ var Workspace = Backbone.View.extend({
                 heightReduction = -5;
             }
         }
+        if ($('#header').length == 0 || $('#header').is('hidden')) {
+            heightReduction = 2;
+        }
         $separator.height($("body").height() - heightReduction);
         $(this.el).find('.sidebar').height($("body").height() - heightReduction);
 
         $(this.querytoolbar.el).find('div').height($("body").height() - heightReduction - 10);
         
         // Adjust the dimensions of the results window
+        var editorHeight = $(this.el).find('.workspace_editor').is(':hidden') ? 0 : $(this.el).find('.workspace_editor').height();
+
         $(this.el).find('.workspace_results').css({
             height: $("body").height() - heightReduction -
                 $(this.el).find('.workspace_toolbar').height() - 
                 $(this.el).find('.workspace_results_info').height() - 
-                $(this.el).find('.workspace_editor').height() - 35
+                editorHeight - 20
         });
         
         // Fire off the adjust event
@@ -187,6 +194,10 @@ var Workspace = Backbone.View.extend({
         if (this.query) {
             this.query.destroy();
             this.query.clear();
+            if (this.query.name) {
+                this.query.name = undefined;
+                this.update_caption(true);
+            }
             this.query.name = undefined;
         }
         this.clear();
@@ -237,6 +248,7 @@ var Workspace = Backbone.View.extend({
 
             if ('chart' == renderMode && renderType in this.chart ) {
                 this.chart[renderType]();
+                $(this.chart.el).find('div').hide();
                 $(this.querytoolbar.el).find('ul.chart [href="#' + renderType+ '"]').parent().siblings().find('.on').removeClass('on');
                 $(this.querytoolbar.el).find('ul.chart [href="#' + renderType+ '"]').addClass('on');
 
@@ -268,7 +280,7 @@ var Workspace = Backbone.View.extend({
 
 
         } else {
-            $(this.el).find('.workspace_fields').removeClass('hide').show();
+            $(this.el).find('.workspace_editor').removeClass('hide').show();
             $(this.el).find('.workspace_fields').removeClass('disabled');
             $(this.el).find('.workspace_editor .mdx_input').addClass('hide');
             $(this.el).find('.workspace_editor .editor_info').addClass('hide');
@@ -480,7 +492,7 @@ var Workspace = Backbone.View.extend({
                                     $icon.addClass('none');
                                 }
                                 
-                                $icon.insertBefore($clone.find('a'));
+                                $icon.insertBefore($clone.find('span'));
                             }
 
                             if (type == "measure") {
@@ -526,9 +538,9 @@ var Workspace = Backbone.View.extend({
 
     },
     
-    update_caption: function() {
-        var caption = this.caption();
-        $(this.tab.el).find('a').html(caption);
+    update_caption: function(increment) {
+        var caption = this.caption(increment);
+        this.tab.set_caption(caption);
     },
     
    

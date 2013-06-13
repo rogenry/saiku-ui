@@ -747,7 +747,7 @@ span.clear_axis {
     box-shadow: 0 0 10px #EEE;
     border: 1px solid #CCC;
 }
-#password, #username {
+#password, #username, input.newfolder {
     padding: 4px;
     width: 240px;
 }
@@ -874,7 +874,7 @@ span.clear_axis {
 }
 .dialog_selections .dialog_body select {
     height: 270px;
-    width: 350px;
+    width: 430px;
     font-size: 11px;
     overflow: scroll;
 }
@@ -887,7 +887,7 @@ span.clear_axis {
     text-align: left;
 }
 .dialog_selections .available_selections input[type="text"] {
-    width: 200px;
+    width: 300px;
 }
 
 .dialog_permissions .dialog_body {

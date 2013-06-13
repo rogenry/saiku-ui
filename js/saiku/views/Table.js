@@ -45,9 +45,9 @@ var Table = Backbone.View.extend({
             $(event.target).find('div') : $(event.target);
         
     $body = $(document);
-    $body.off('.contextMenu .contextMenuAutoHide');
-    $('.context-menu-list').remove();
-    $.contextMenu('destroy');
+    //$body.off('.contextMenu .contextMenuAutoHide');
+    //$('.context-menu-list').remove();
+    $.contextMenu('destroy', '.row, .col');
     $.contextMenu({
         appendTo: $target,
         selector: '.row, .col', 
@@ -250,6 +250,7 @@ var info = '<b><span class="i18n">Info:</span></b> &nbsp;' + cdate
                 + "&nbsp; / &nbsp;" + runtime + "s";
         $(this.workspace.el).find(".workspace_results_info")
             .html(info);
+        this.workspace.adjust();
         //Saiku.i18n.translate();
         $(this.el).html('<tr><td>Rendering ' + args.data.width + ' columns and ' + args.data.height + ' rows...</td></tr>');
 
@@ -409,11 +410,11 @@ var info = '<b><span class="i18n">Info:</span></b> &nbsp;' + cdate
     },
     
     cancelled: function(args) {
-        $(this.el).html('<tr><td>No results</td></tr>');
+        $(this.el).html('<tr><td><span class="processing_image">&nbsp;&nbsp;</span> <span class="i18n">Canceling Query...</span> </td></tr>');
     },
 
     no_results: function(args) {
-        $(this.el).html('<tr><td>No results</td></tr>');
+        $(this.el).html('<tr><td><span class="i18n">No Results</span> </td></tr>');
     },
     
     error: function(args) {
