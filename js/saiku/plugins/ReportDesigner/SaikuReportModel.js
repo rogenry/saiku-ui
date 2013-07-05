@@ -141,10 +141,11 @@ var VerticalElementAlignment = {
 			nullString: null,
 			displayName: null,
 			fieldId: null,
-			groupName: null,		
+			groupName: null,					
 			//sort: SortType.ASC,
 			headerFormats: [],
-			footerFormat: new ElementFormat()
+			footerFormat: new ElementFormat(),
+			printSummary: false
 		};
 
 		config = config || {};

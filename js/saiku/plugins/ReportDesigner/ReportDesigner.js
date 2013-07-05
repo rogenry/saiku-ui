@@ -39,7 +39,7 @@ var ReportDesigner = Backbone.View.extend({
     },
     
     template: function() {
-       return _.template($("#report-toolbar").html())();
+       return _.template($("#template-report-workspace").html())();  
     },
     
     
@@ -67,6 +67,9 @@ var ReportDesigner = Backbone.View.extend({
     
     
     render: function(json) {
+
+        $(this.workspace.el).find('.workspace_results').prepend($(this.el));
+        //$(this.workspace.el).find('.workspace_results').hide();
 
         // Check to see if there is data
         if (json.data && json.data.data.length === 0) {

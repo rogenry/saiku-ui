@@ -129,6 +129,14 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 			return;
 		}
 
+		if(this.workspace.mode="crosstab" && ($colgroups.size() == 0 || $rowgroups.size() == 0)) {
+			var message = '<tr><td><span class="i18n">this is not a valid crosstab query.</td></tr>';
+			$(this.workspace.el).find('.report_inner').html(message);
+			//$(this.workspace.el).find('.workspace_results div').html(message);
+			return;
+		}
+
+
 		var mqlQueryString = this.workspace.metadataQuery.toXml();
 
 		this.workspace.reportSpec.dataSource = new reportDesigner.Datasource({

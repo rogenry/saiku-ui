@@ -100,12 +100,16 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
         if(target == "REL_GROUPS" || target == "COL_GROUPS" || target == "ROW_GROUPS"){
             initialSort = 'BASC';
         }
-        var $icon = $("<div />").addClass('sprite').addClass('selections');
-        var $icon2 = $("<span />").addClass('sprite').addClass('sort').addClass(initialSort);
-        ui.item.addClass('d_dimension').prepend($icon);
-        ui.item.addClass('d_dimension').prepend($icon2);
 
-        //MG// Todo: We must presort on the groups
+        var $icon = $("<span />").addClass('sprite selections');
+        var $icon2 = $("<span />").addClass('sprite sort').addClass(initialSort);
+
+        if(target=="FILTERS"){
+            ui.item.addClass('d_dimension').prepend($icon);
+        }else{
+            ui.item.addClass('d_dimension').prepend($icon2);    
+        }
+        
 
         var member = ui.item.find('a').attr('href').replace('#', '');
         var dimension = member.split('/')[3];  //MG

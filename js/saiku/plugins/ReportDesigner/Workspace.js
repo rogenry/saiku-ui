@@ -1,10 +1,12 @@
 var reportDesigner = reportDesigner || {};
 
 reportDesigner.Workspace = Workspace.extend({
-    
+
     initialize: function(args, options) {
 
-        this.mode = this.options.mode;
+        this.mode = "crosstab";
+
+        //this.mode = this.options.mode;
 
         this._super("initialize", args);
 
@@ -19,7 +21,7 @@ reportDesigner.Workspace = Workspace.extend({
         this._super("render", arguments);
 
         // Add results report
-        $(this.el).find('.workspace-report-toolbar').append(_.template($("#report-toolbar").html())());
+        //$(this.el).find('.workspace-report-toolbar').append(_.template($("#report-toolbar").html())());
         $(this.el).find('.workspace_report_canvas').append($(this.report.el));
 
         //TODO: add report editpanel here
@@ -30,14 +32,18 @@ reportDesigner.Workspace = Workspace.extend({
         this.edit_panel.render();
     },
 
+/*
     template: function() {
-        var template = $("#template-report-workspace").html() || "";
+        var template = $("#template-workspace").html() || "";
         return _.template(template)({
             cube_navigation: Saiku.session.sessionworkspace.cube_navigation
         });
     },
 
+*/
+
     new_query: function() {
+
         // Delete the existing query
         if(this.query) {
             this.query.destroy();
