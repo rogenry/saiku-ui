@@ -111,8 +111,7 @@ var savePg0 = function() {};
  */
 if (Settings.BIPLUGIN) {
     Settings.PLUGIN = true;
-    Settings.REST_URL = "../../saiku-reporting/";
-
+    Settings.REST_URL = "../";
 
     $(document).ready(function() {
         Saiku.session = new Session();

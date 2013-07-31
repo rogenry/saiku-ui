@@ -4,9 +4,9 @@ reportDesigner.Workspace = Workspace.extend({
 
     initialize: function(args, options) {
 
-        this.mode = "crosstab";
+        //this.mode = "crosstab";
 
-        //this.mode = this.options.mode;
+        this.mode = this.options.mode;
 
         this._super("initialize", args);
 
