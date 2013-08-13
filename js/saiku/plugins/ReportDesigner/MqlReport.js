@@ -23,7 +23,7 @@
  */
 var reportDesigner = reportDesigner || {};
 
-reportDesigner.MetadataQuery = Backbone.Model.extend({
+reportDesigner.MqlReport = Backbone.Model.extend({
 	initialize: function(args, options) {
 
 		_.extend(this, options);
@@ -48,6 +48,18 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		this.reportPerspective = true;
 		this.selectedModel = Saiku.session.sessionworkspace.mdModels[this.attributes.domainId + "/" + this.attributes.modelId];
 		this.selectedItems = {}; //Store metadata descriptions of selected items
+
+        // these are the new client models
+        this.reportSpec = new reportDesigner.ReportSpecification({
+            reportName: "myreport"
+        });
+        this.serverReportSpec = null;
+        this.metadataQuery = new reportDesigner.mql.Query({
+            mql: {
+                domain_id: args.domainId.replace("%2F", "/"),
+                model_id: args.modelId
+            }
+        });
 
 	},
 
@@ -87,14 +99,14 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 						column_id: columnId,
 						direction: SortType.ASC
 					};
-					that.workspace.metadataQuery.config.mql.orders.push(sort);
+					that.metadataQuery.config.mql.orders.push(sort);
 				} else if($span.hasClass('BDESC')) {
 					var sort = {
 						view_id: categoryId,
 						column_id: columnId,
 						direction: SortType.DESC
 					};
-					that.workspace.metadataQuery.config.mql.orders.push(sort);
+					that.metadataQuery.config.mql.orders.push(sort);
 				}
 			}
 		});
@@ -105,7 +117,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		var that = this;
 
 		//Rebuild sorting:
-		this.workspace.metadataQuery.config.mql.orders = [];
+		this.metadataQuery.config.mql.orders = [];
 
 		//MG: Reuse d_measure or d_dimension
 		var $measures = $(this.workspace.el).find('.measures ul li.d_dimension');
@@ -137,9 +149,9 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		}
 
 
-		var mqlQueryString = this.workspace.metadataQuery.toXml();
+		var mqlQueryString = this.metadataQuery.toXml();
 
-		this.workspace.reportSpec.dataSource = new reportDesigner.Datasource({
+		this.reportSpec.dataSource = new reportDesigner.Datasource({
 			id: "master",
 			type: DatasourceType.CDA,
 			queryString: mqlQueryString
@@ -177,7 +189,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 					return false;
 				},
 				contentType:  'application/json',
-				data: JSON.stringify(that.workspace.reportSpec)
+				data: JSON.stringify(that.reportSpec)
 			});
 		}
 	},
@@ -199,8 +211,8 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 		//if it doesnt have a metadata it must be a calculated column
 		if(mc === undefined){
 			if(indexFrom) {
-				field = this.workspace.reportSpec.removeColumn(indexFrom);
-				this.workspace.reportSpec.addColumn(field, index);
+				field = this.reportSpec.removeColumn(indexFrom);
+				this.reportSpec.addColumn(field, index);
 			}
 			this.run();
 		}
@@ -238,9 +250,9 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 			});
 
 			if(indexFrom) {
-				field = this.workspace.reportSpec.removeColumn(indexFrom);
+				field = this.reportSpec.removeColumn(indexFrom);
 			}
-			this.workspace.reportSpec.addColumn(field, index);
+			this.reportSpec.addColumn(field, index);
 			break;
 
 		case "REL_GROUPS":
@@ -252,9 +264,9 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 				printSummary: true
 			});
 			if(indexFrom) {
-				group = this.workspace.reportSpec.removeGroup(indexFrom);
+				group = this.reportSpec.removeGroup(indexFrom);
 			}
-			this.workspace.reportSpec.addGroup(group, index);
+			this.reportSpec.addGroup(group, index);
 			break;
 
 		case "ROW_GROUPS":
@@ -267,9 +279,9 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 			});
 
 			if(indexFrom) {
-				group = this.workspace.reportSpec.removeGroup(indexFrom);
+				group = this.reportSpec.removeGroup(indexFrom);
 			}
-			this.workspace.reportSpec.addGroup(group, index);
+			this.reportSpec.addGroup(group, index);
 			break;
 
 		case "COL_GROUPS":
@@ -282,15 +294,15 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 			});
 
 			if(indexFrom) {
-				group = this.workspace.reportSpec.removeGroup(indexFrom);
+				group = this.reportSpec.removeGroup(indexFrom);
 			}
-			this.workspace.reportSpec.addGroup(group, index);
+			this.reportSpec.addGroup(group, index);
 			break;
 
 		case "FILTERS":
 			console.log("adding Filter");
 
-			this.workspace.metadataQuery.addConstraint({}, index);
+			this.metadataQuery.addConstraint({}, index);
 
 			var filterModel = {
 				index: index,
@@ -311,7 +323,7 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 
 		}
 
-		this.workspace.metadataQuery.addSelection(selection);
+		this.metadataQuery.addSelection(selection);
 
 		this.run();
 
@@ -320,21 +332,21 @@ reportDesigner.MetadataQuery = Backbone.Model.extend({
 	remove_dimension: function(target, indexFrom) {
 		switch(target) {
 		case "MEASURES":
-			this.workspace.reportSpec.removeColumn(indexFrom);
-			this.workspace.metadataQuery.removeSelection(indexFrom);
+			this.reportSpec.removeColumn(indexFrom);
+			this.metadataQuery.removeSelection(indexFrom);
 			break;
 		case "FILTERS":
-			this.workspace.metadataQuery.removeConstraint(indexFrom);
+			this.metadataQuery.removeConstraint(indexFrom);
 			//Remove the filter from mql-conditions using index;
 			//If mql contains a param, also remove that param from mql
 			//Remove the param from the reportmodel
 			//If the param has a query, remove that query from datasource
 		default:
-			this.workspace.reportSpec.removeGroup(indexFrom);
+			this.reportSpec.removeGroup(indexFrom);
 		}
 		this.run();
 	},
 
 });
 
-Query = reportDesigner.MetadataQuery;
+Query = reportDesigner.MqlReport;

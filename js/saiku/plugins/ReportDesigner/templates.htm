@@ -220,10 +220,10 @@
         <label for="prompt_parameter">Use as a prompt</label>
         <input name="prompt_parameter" id="prompt_parameter" type="checkbox" />
         &nbsp;&nbsp;
-        <label for="parameter_name">Name</label>
+        <label for="parameter_name" class="param_lab">Name</label>
         <input name="parameter_name" type="text" class="parameter_name" />
         &nbsp;&nbsp;
-        <label for="parameter_label">Prompting text</label>
+        <label for="parameter_label" class="param_lab">Prompting text</label>
         <input name="parameter_label" type="text" class="parameter_label" />
     </div>
     <hr id="separatorline">
@@ -266,9 +266,9 @@
             <li>
                 <a href="#prev_page" class="i18n prev_page  button page" title="Previous Page"></a>
             </li>
-            <li id='curr_page'>1</li>
-            <li>/</li>
-            <li id='off_page'>1</li>
+            <li id='curr_page' class='pager_li'>1</li>
+            <li class='pager_li'>/</li>
+            <li id='off_page' class='pager_li'>1</li>
             <li>
                 <a href="#next_page" class="i18n next_page  button page" title="Next Page"></a>
             </li>
@@ -442,7 +442,8 @@
 
 <script type="text/x-jquery-tmpl" id="template-report-workspace">
     <div class="workspace_report">
-        <div class="report-toolbar"><div id='format_toolbox'></div>
+        <div class="report-toolbar">
+        <div id='format_toolbox'></div>
         <div class="workspace-report-toolbar"></div>
         <div class="workspace_report_canvas"></div>
     </div>
@@ -491,36 +492,35 @@
     <div class="workspace">
         <div class="workspace_inner">
             <div class="workspace_toolbar"></div>
-            <div class="workspace_editor">
+            <div class="workspace_editor"></div>
             <div class="workspace_results">
                 <div id="content">
-                    <div class="workspace_results"></div>
                     <div class="workspace_report">
                         <div class="workspace-report-toolbar"></div>
                         <div class="workspace_report_canvas"></div>
                     </div>
-                    <div class="workspace_error"></div>
                 </div>
             </div>
         </div>
-        <div class="sidebar">
-            <div>
-                <h3 class="top i18n">Cubes</h3>
-                <div class="refresh_cubes_nav">
-                    <a href="#refresh_cubes" class="i18n button refresh_cubes" title="Refresh Cubes (Clear Cache)"></a>
-                </div>
+    </div>
+    <div class="sidebar">
+        <div>
+            <h3 class="top i18n">Cubes</h3>
+            <div class="refresh_cubes_nav">
+                <a href="#refresh_cubes" class="i18n button refresh_cubes" title="Refresh Cubes (Clear Cache)"></a>
             </div>
-            <div class="sidebar_inner">
-                <%= cube_navigation %>
-            </div>
-            <h3 class="i18n">Dimensions</h3>
-            <div class="sidebar_inner dimension_tree"></div>
-            <h3 class="i18n">Measures</h3>
-            <div class="sidebar_inner measure_tree"></div>
         </div>
+        <div class="sidebar_inner">
+            <%= cube_navigation %>
+        </div>
+        <h3 class="i18n">Dimensions</h3>
+        <div class="sidebar_inner dimension_tree"></div>
+        <h3 class="i18n">Measures</h3>
+        <div class="sidebar_inner measure_tree"></div>
+    </div>
 
-        <div class="sidebar_separator"></div>
-        <div class="clear"></div>
+    <div class="sidebar_separator"></div>
+    <div class="clear"></div>
 </script>
 
 <script type="text/x-jquery-tmpl" id="template-edit-panel-details">

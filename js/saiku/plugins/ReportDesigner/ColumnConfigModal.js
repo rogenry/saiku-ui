@@ -62,8 +62,8 @@ var ColumnConfigModal = Modal.extend({
 
     populate: function() {
 
-      this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
-      this.mqlSelection = this.workspace.metadataQuery.getSelection(this.index);
+      this.columnDefinition = this.workspace.query.reportSpec.fieldDefinitions[this.index];
+      this.mqlSelection = this.workspace.query.metadataQuery.getSelection(this.index);
 
       var domainId = this.workspace.query.attributes.domainId;
       var modelId = this.workspace.query.attributes.modelId;

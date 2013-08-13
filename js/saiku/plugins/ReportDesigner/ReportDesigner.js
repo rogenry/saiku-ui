@@ -67,8 +67,8 @@ var ReportDesigner = Backbone.View.extend({
     
     
     render: function(json) {
-
-        $(this.workspace.el).find('.workspace_results').prepend($(this.el));
+        var check = $(this.workspace.el).find('.workspace_report');
+        $(this.workspace.el).find('.workspace_report').append($(this.el));
         //$(this.workspace.el).find('.workspace_results').hide();
 
         // Check to see if there is data
@@ -91,7 +91,7 @@ var ReportDesigner = Backbone.View.extend({
 		//$('.workspace_results').hide();
     	$(this.el).empty();
         $(this.el).html(html).wrapInner('<div class="report_border" />');
-		$('.report_border').width($('.report_border table').width()+30);
+		$('.report_border').width($('.report_border table').width());
 		
 		$(".pager #curr_page").html(json.data.currentPage + 1);;		
 		$(".pager #off_page").html(json.data.pageCount);

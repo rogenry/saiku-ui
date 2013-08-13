@@ -14,20 +14,24 @@ reportDesigner.Workspace = Workspace.extend({
             workspace: this
         });
 
+        if(typeof args !== 'undefined' && args.query) {
+            this.query = this.options.query;
+            this.init_query();          
+        } 
     },
 
     render: function(){
 
         this._super("render", arguments);
-
         // Add results report
         //$(this.el).find('.workspace-report-toolbar').append(_.template($("#report-toolbar").html())());
+        
         $(this.el).find('.workspace_report_canvas').append($(this.report.el));
 
         //TODO: add report editpanel here
         this.edit_panel = new ElementFormatPanel({
             workspace: this,
-            el: $(this.el).find('#format_toolbox')
+            el: $(this.el).find('.workspace-report-toolbar')
         });
         this.edit_panel.render();
     },
@@ -48,7 +52,6 @@ reportDesigner.Workspace = Workspace.extend({
         if(this.query) {
             this.query.destroy();
         }
-
         // Initialize the new query
         this.selected_model = $(this.el).find('.cubes').val();
 
@@ -65,32 +68,22 @@ reportDesigner.Workspace = Workspace.extend({
             workspace: this
         });
 
-        // these are the new client models
-        this.reportSpec = new reportDesigner.ReportSpecification({
-            reportName: "myreport"
-        });
-        this.serverReportSpec = null;
-        this.metadataQuery = new reportDesigner.mql.Query({
-            mql: {
-                domain_id: domainName.replace("%2F", "/"),
-                model_id: modelId
-            }
-        });
-
         this.init_query();
     },
 
     init_query: function() {
 
+/*
         if(this.query.get('json')) {
             var json = JSON.parse(this.query.get('json'));
             this.selected_model = json.clientModelSelection;
         }
+*/
 
         // Find the selected cube
         if(this.selected_model === undefined) {
-            this.selected_model = this.query.get('model');
-
+            var smodel = this.query.attributes.domainId.replace("/","%2F") + "/" + this.query.attributes.modelId;
+            this.selected_model = Saiku.session.sessionworkspace.mdModels[smodel].attributes.path;
         }
 
         $(this.el).find('.mdModels').val(this.selected_model);
@@ -105,69 +98,93 @@ reportDesigner.Workspace = Workspace.extend({
                 workspace: this,
                 mdModel: Saiku.session.sessionworkspace.mdModels[this.selected_model]
             });
-            $(this.el).find('.dimension_tree').html('').append($(this.mdmodel_list.el));
+            //$(this.el).find('.dimension_tree').html('').append($(this.mdmodel_list.el));
+            var tHtml = $(this.el).find('.dimension_tree');
+            tHtml.html('').append($(this.mdmodel_list.el));
 
         } else {
             // Someone literally selected "Select a model"
             $(this.el).find('.dimension_tree').html('');
             return;
         }
-
-        this.populate_selections();
+        //this.populate_selections();
 
     },
-    populate_selections: function() {
+    populate_selections: function(args) {
 
         //I only get past here once
         //i have to check wether the query has some loaded json model from the server
-        if(this.query.get('json')) {
+        /*if(this.query.metadataQuery.get('json')) {
             var model = JSON.parse(this.query.get('json'));
-        }
+        }*/
+       
+        // switch active cube option to 'selected' 
+        $(".cubes option[value='"+this.selected_model+"']").attr('selected',true);
+        
+        this.init_query();
+        this.query.attributes.domainId = this.query.attributes.domainId.replace("/","%2F");
+        var model = this.query.reportSpec;
+        this.query.selectedModel = Saiku.session.sessionworkspace.mdModels[this.query.attributes.domainId.replace("/","%2F") + "/" + this.query.attributes.modelId]; 
 
         if(model) {
+            
+            var fields = model.fieldDefinitions ? model.fieldDefinitions : false;
+            var groups = model.groupDefinitions ? model.groupDefinitions : false;
+            //var parameters = model.parameters ? model.parameters : false;
+            
+            
+            if(fields) {
+                var $target = $(this.el).find('.fields_list_body.measures ul')
+                for(var fields_iter = 0; fields_iter < fields.length; fields_iter++) {
+                    var field = fields[fields_iter];
+                    var name = field.fieldName;
+                    var $icon = $("<span />").addClass('sprite sort none');
+                    var $source = $(this.el).find('a[title="' + name + '"]').parent();
+                    var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon);
+                    //$(this.el).find("a[title='"+name+"']").trigger('click'); 
+                    $source
+                        .css({fontWeight: "bold"})
+                        .draggable('disable');
+                    $source.parents('.parent_dimension')
+                        .find('span.root.collapsed')
+                        .removeClass('collapsed')
+                        .addClass('expand');
+                    $source.parents('.parent_dimension')
+                        .find('.folder_collapsed')
+                        .css({fontWeight: "bold"});
+                    $source.parent().children()
+                        .css({display: "list-item"}); 
 
-            if(model.maxClientSeq != null) {
-                this.idCounter = model.maxClientSeq;
+                                              
+                    
+                }    
             }
 
-            var columns = model.columns ? model.columns : false;
-
-            var groups = model.groups ? model.groups : false;
-
-            var parameters = model.parameters ? model.parameters : false;
-
-            if(columns) {
-                var $selections = $(this.el).find('.columns ul');
-
-                for(var columns_iter = 0; columns_iter < columns.length; columns_iter++) {
-                    var column = columns[columns_iter];
-                    var name = column.name;
-
-                    var href = '#CATEGORY/' + column.category + '/COLUMN/' + column.id;
-
-                    var $logicalColumn = $(this.el).find('.category_tree')
-                    //.find('a[title="' + name + '"]')
-                    .find('a[href="' + href + '"]').parent();
-
-                    var $clone = $logicalColumn.clone().addClass('d_dimension').appendTo($selections);
-
-                    $("<span />").addClass('sort').addClass(column.sort.toLowerCase()).prependTo($clone);
-
-                    if(column.formula != null) {
-                        var $logicalColumn = $(this.el).find('.category_tree').find('a[title="calc_column"]').parent();
-
-                        var $clone = $logicalColumn.clone().addClass('d_measure').addClass('.calculated').attr("id", column.uid).removeClass('hide');
-
-                        var href = '#CATEGORY/' + column.category + '/COLUMN/' + column.name;
-
-                        $clone.find('a[title="calc_column"]').attr("title", column.name).html(column.name).attr("href", href);
-
-                        $clone.appendTo($selections);
-                    }
-
-                }
+            if(groups) {
+                var $target = $(this.el).find('.fields_list_body.relgroups ul');
+                for(var groups_iter = 0; groups_iter < groups.length; groups_iter++) {
+                    var group = groups[groups_iter];
+                    var name = group.displayName;
+                    var $icon = $("<span />").addClass('sprite sort none');
+                    var $source = $(this.el).find('a[title="' + name + '"]').parent();
+                    var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon); 
+                    //$("<span />").addClass('sort').addClass(group.sort.toLowerCase()).prependTo($clone);
+                    $source
+                        .css({fontWeight: "bold"})
+                        .draggable('disable');
+                    $source.parents('.parent_dimension')
+                        .find('span.root.collapsed')
+                        .removeClass('collapsed')
+                        .addClass('expand');
+                    $source.parents('.parent_dimension')
+                        .find('.folder_collapsed')
+                        .css({fontWeight: "bold"});
+                    $source.parent().children()
+                        .css({display: "list-item"}); 
+                } 
             }
 
+            /*
             if(groups) {
                 var $groups = $(this.el).find('.group ul');
 
@@ -197,9 +214,10 @@ reportDesigner.Workspace = Workspace.extend({
                     $("<span />").addClass('sprite').prependTo($clone);
                 }
             }
-
-            this.query.page = null;
-            this.query.run();
+            */
+           this.query.workspace = this;
+           this.query.page = null;
+           this.query.run();
         }
 
         // Make sure appropriate workspace buttons are enabled
@@ -215,23 +233,26 @@ reportDesigner.Workspace = Workspace.extend({
     },
 
     clear: function() {
-		// Adjust the dimensions of the report workspace 
+		
+        $(this.el).find('.workspace_results').css({
+            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - $(this.el).find('.workspace_editor').height()-30
+        });
+
+        // Adjust the dimensions of the report workspace 
 		$(this.el).find('.workspace_report').css({
-			height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - 40
+			height: $(this.el).find('.workspace_results') - 5
 		});
-				
+
         // Adjust the dimensions of the report inner
         $(this.el).find('.report_inner').css({
-            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace-report-toolbar').height() - $(this.el).find('.workspace_toolbar').height() - 80
+            height: $(this.el).find('.workspace_report')
         });
 
         // Adjust the dimensions of the error window
-        $(this.el).find('.workspace_error').css({
-            height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - /*$(this.el).find('.workspace_fields').height()*/ - 40
+        $(this.el).find('.workspace_error').css({height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - 40 
         });
 
         this._super("clear", arguments);
-
     },
 
     adjust: function() {

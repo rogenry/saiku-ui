@@ -35,7 +35,8 @@ var SimpleFilterDialog = Modal.extend({
         'click a': 'call',
         'dblclick select option': 'click_move_selection',
         'click div.selection_buttons a.form_button': 'move_selection',
-        'click div.updown_buttons a.form_button': 'updown_selection'
+        'click div.updown_buttons a.form_button': 'updown_selection',
+        'click input#prompt_parameter': 'promt_select'
     },
 
     initialize: function(args) {
@@ -103,8 +104,8 @@ var SimpleFilterDialog = Modal.extend({
     build_filterquery: function() {
         this.metadataQuery = new reportDesigner.mql.Query({
             mql: {
-                domain_id: this.workspace.metadataQuery.config.mql.domain_id,
-                model_id: this.workspace.metadataQuery.config.mql.model_id
+                domain_id: this.query.metadataQuery.config.mql.domain_id.replace("/","%2F"),
+                model_id: this.query.metadataQuery.config.mql.model_id
             }
         });
 
@@ -282,6 +283,19 @@ var SimpleFilterDialog = Modal.extend({
         $(event.target).appendTo($(this.el).find(to + ' select'));
     },
 
+    promt_select: function(event){
+        if($(event.target).prop('checked')) {
+            $(this.el).find('input.parameter_name').prop('disabled', true).css("background-color","#dddddd");
+            $(this.el).find('input.parameter_label').prop('disabled', true).css("background-color","#dddddd");
+            $(this.el).find('.param_lab').css("color","#cccccc");
+        } else {
+            $(this.el).find('input.parameter_name').prop('disabled', false).css("background-color","#ffffff");
+            $(this.el).find('input.parameter_label').prop('disabled', false).css("background-color","#ffffff");
+            $(this.el).find('.param_lab').css("color","black");
+        }
+
+    },
+    
     finished: function() {
         $(this.el).dialog('destroy').remove();
         this.query.run();

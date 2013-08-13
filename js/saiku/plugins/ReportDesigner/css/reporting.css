@@ -120,22 +120,35 @@
 }
 
 .workspace-report-toolbar{
-	width: 100%;
-	border-top: medium none !important;
-    /*margin-top: 10px;*/
+    background: #F9F9F9;
+    border: 1px solid #CCC;
+    height: 20px;
+    font-weight: bold;
+    font-size: 12px;
+    margin: 0 0 3px -5px;
+    padding: 3px 10px 3px 5px;
+    text-shadow: 1px 1px 0 #FFFFFF;
+    overflow: hidden;
+    line-height: 14px;
+    box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.1)
+    -moz-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.10);
+    -webkit-box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.10);
+
+	/*width: 100%;
+	  border-top: medium none !important;
     margin-bottom: 10px;
     margin-left:auto; 
     margin-right:auto;
     height: 20px;
     font-weight: bold;
-    /*padding-top: 6px;*/
     line-height: 1.5em;
     padding: 5px 10px 6px;
     background: -moz-linear-gradient(center top , #FFFFFF 0%, #F0F0F0 100%) repeat scroll 0 0 transparent;
     border: 1px solid #CCCCCC;
     font-size: 12px;
     text-shadow: 1px 1px 0 #FFFFFF;
-        text-align: center;
+    text-align: center;
+   */
 }
 
 /*
@@ -258,9 +271,9 @@
 .pager a.button{
     display: block;
     height: 9px;
-    padding: 5px;
+    padding: 5px; 
     width: 9px;
-    /*margin-top: 5px;*/
+    margin-top: 2px;
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
 }
@@ -280,6 +293,11 @@
     display: inline;
     float: left;
 }
+
+.pager ul li.pager_li{
+    margin-top:3px;
+}
+
 .pager ul li.seperator {
     border-left: 1px solid #D5D5D5;
     margin-left: 5px;
@@ -680,7 +698,7 @@ div.folderexplorer{
 }
 .dialog_simpleFilterDialog .dialog_body .select_from_list .used_selections {
     padding-right: 5px;
-    padding-top: 36px;
+    padding-top: 29px;
     float: right;
 }
 .dialog_simpleFilterDialog .dialog_body .select_from_list select {

@@ -52,9 +52,9 @@ var ReportResult = Backbone.Model.extend({
 		 options.type = 'POST';
 		 options.contentType =  'application/json'; 
 		 //options.data = JSON.stringify(testmodel);
-		 var test = this.query.workspace.reportSpec;
+		 var test = this.query.reportSpec;
 		 var stringTest = JSON.stringify(test);
-		 options.data = JSON.stringify(this.query.workspace.reportSpec);
+		 options.data = JSON.stringify(this.query.reportSpec);
          return Backbone.Model.prototype.fetch.call(this, options);
      }
  });
@@ -103,9 +103,30 @@ reportDesigner.SavedQuery = SavedQuery.extend({
             name: filename
         });
         */
-    
 
-        var tab = Saiku.tabs.add(new Workspace({ query: query }));
+        var jsonResponse = JSON.parse(response);
+        var xmlResponse = reportDesigner.mql.Phomp.mqlToJs(jsonResponse.dataSource.queryString);
+
+        /*var parser=new DOMParser();
+        var qXml = parser.parseFromString(jsonResponse.dataSource.queryString,'text/xml');
+
+        var domainID = qXml.getElementsByTagName('domain_id');
+        var modelID = qXml.getElementsByTagName('model_id');
+        */
+
+        var mqlReport = new Query({
+            domainId: xmlResponse.mql.domain_id,
+            modelId: xmlResponse.mql.model_id
+        });
+
+        // these are the new client models
+        mqlReport.reportSpec = new reportDesigner.ReportSpecification(jsonResponse);
+        mqlReport.serverReportSpec = null;
+
+        mqlReport.metadataQuery.config = xmlResponse;
+
+        var tab = Saiku.tabs.add(new Workspace({ query: mqlReport }));
+        tab.content.populate_selections();
         
     }
 

@@ -130,7 +130,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
         var uuid = _.uniqueId('uid-');
 
         ui.item.attr('id', uuid);
-        
+
         // Notify the model of the change
         this.workspace.query.move_dimension(member, 
                 target, undefined, index, uuid);
@@ -270,7 +270,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
 
             console.log("edit Filter");
 
-            var constraint = this.workspace.metadataQuery.getConstraint(index);
+            var constraint = this.workspace.query.metadataQuery.getConstraint(index);
             var filterModel = reportDesigner.mql.FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
 
             (new SimpleFilterDialog({
