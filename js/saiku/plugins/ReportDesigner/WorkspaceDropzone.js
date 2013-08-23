@@ -84,8 +84,9 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             return;
         }
 
+        // [cz] make all draggable
         // Make the element and its parent bold
-        var original_href = ui.item.find('a').attr('href');
+        /*var original_href = ui.item.find('a').attr('href');
         var $original = $(this.workspace.el).find('.sidebar')
             .find('a[href="' + original_href + '"]').parent('li');
         $original
@@ -93,7 +94,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             .draggable('disable');
         $original.parents('.parent_dimension')
             .find('.folder_collapsed')
-            .css({fontWeight: "bold"});
+            .css({fontWeight: "bold"});*/
 
         // Wrap with the appropriate parent element
         var initialSort = 'none'; 
@@ -125,7 +126,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             }
         });
 
-        var index = dimensions.indexOf(dimension);
+        var index = dimensions.indexOf(dimension);       
 
         var uuid = _.uniqueId('uid-');
 
@@ -165,7 +166,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
                     dimensions.push(idimension);
                 }
             });
-            var index = dimensions.indexOf(dimension);
+                        var index = dimensions.indexOf(dimension);
             var indexFrom = ui.item.attr('indexFrom'); //MG//
             var uuid = ui.item.attr('id');
 
@@ -216,8 +217,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
         if($target_el.hasClass('rowgroups')) target = "ROW_GROUPS";
         if($target_el.hasClass('filters')) target = "FILTERS";
 
-        var index = $target_el.find('li.ui-draggable').index(
-        $target_el.find('a[href="#' + dimension + '"]').parent());
+        var index = $target_el.find('li.ui-draggable').index($target_el.find('a[href="#' + dimension + '"]').parent());
 
         this.workspace.query.remove_dimension(target, index);
 
@@ -267,11 +267,10 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
                 })).open();
             }
         }else if(target  == 'FILTERS'){
-
             console.log("edit Filter");
-
             var constraint = this.workspace.query.metadataQuery.getConstraint(index);
             var filterModel = reportDesigner.mql.FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
+            filterModel.index = index;
 
             (new SimpleFilterDialog({
                 filterModel: filterModel,
