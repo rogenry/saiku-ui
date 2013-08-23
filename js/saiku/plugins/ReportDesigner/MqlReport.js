@@ -301,9 +301,7 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 
 		case "FILTERS":
 			console.log("adding Filter");
-
 			this.metadataQuery.addConstraint({}, index);
-
 			var filterModel = {
 				index: index,
 				operatorType: OperatorType.AND,
@@ -316,7 +314,8 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 
 			(new SimpleFilterDialog({
 				filterModel: filterModel,
-				workspace: this.workspace
+				workspace: this.workspace,
+				action: "new"
 			})).open();
 
 			return false;
@@ -341,8 +340,10 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 			//If mql contains a param, also remove that param from mql
 			//Remove the param from the reportmodel
 			//If the param has a query, remove that query from datasource
+			break;
 		default:
 			this.reportSpec.removeGroup(indexFrom);
+			break;
 		}
 		this.run();
 	},

@@ -17,11 +17,18 @@ var exports = reportDesigner.mql;
         var filterModel = {};
 
         if(js.name != "AND" && js.name != "OR") {
+            var filterLength = js.args.length;
+            var filterValues = new Array();
             var category = js.args[0].arg.left.text;
             var column = js.args[0].arg.right.text;
             filterModel.conditionType = js.name;
-            filterModel.value = FilterController.stringToValue(js.args[1].text);
+            for(var i = 1; i < filterLength; i++) {
+                filterValues.push(FilterController.stringToValue(js.args[i].text));
+            }
+            filterModel.value = filterValues;
             filterModel.columnMeta = query.selectedModel.getColumnById(category,column);
+            filterModel.aggType = filterModel.columnMeta.aggTypes[0];
+
         } else {
             alert("this seems to be a complex filter");
         }
@@ -47,7 +54,7 @@ var exports = reportDesigner.mql;
         if(model.conditionType == "LIKE") {
             var val =  value.replace(/"/g, "") ;
             formula = 'LIKE(' + column + ';"%' + value.replace(/"/g, "") + '%")';
-        } else if(model.conditionType == ConditionType.EQUAL) {
+        } else if(model.conditionType == ConditionType.EQUAL || model.conditionType == ConditionType.IN ) {
             if($.isArray(model.value) && ! (model.value.length == 1)) { 
                 formula = 'IN(' + column + ';' + value + ')';        
             } else {

@@ -241,12 +241,13 @@ saiku.report.Parameter = Parameter;
 	(PageSetup = function(config) {
 
 		defaultConfig = {
-			pageOrientation: null,
-			pageFormat: null,
-			topMargin: null,
-			rightMargin: null,
-			bottomMargin: null,
-			leftMargin: null
+			pageOrientation: 1,
+			pageFormat: "LETTER",
+			topMargin: 0,
+			rightMargin: 0,
+			bottomMargin: 0,
+			leftMargin: 0,
+			formatList: null
 		};
 
 		config = config || {};
@@ -260,6 +261,25 @@ saiku.report.Parameter = Parameter;
 	});
 	reportDesigner.PageSetup = PageSetup;
 
+	var ReportTemplate;
+	(ReportTemplate = function(config) {
+
+		defaultConfig = {
+			url: "system/saiku-reporting/resources/templates",
+			name: "cobalt_4_left_aligned_grid.prpt"
+		};
+
+		config = config || {};
+		var p;
+		for(p in defaultConfig) {
+				if(typeof(config[p]) === "undefined" && defaultConfig[p] != null) {
+				config[p] = defaultConfig[p];
+			}
+			this[p] = config[p];
+		}
+	});
+	reportDesigner.ReportTemplate = ReportTemplate;
+
 	var ReportSpecification;
 	(ReportSpecification = function(config) {
 
@@ -272,11 +292,12 @@ saiku.report.Parameter = Parameter;
 			groupDefinitions: [],
 			fieldDefinitions: [],
 			charts: [],
-			pageSetup: null,
+			pageSetup: new PageSetup(),
 			dataSource: null,
 			//sollen hier mehrere rein, auch die für propmts? oder sollen die in den jeweiligen parameter?
 			//parameters: [],
-			customValues: {}
+			customValues: {},
+			template: new ReportTemplate()
 		}
 
 		config = config || {};

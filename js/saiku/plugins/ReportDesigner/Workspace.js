@@ -141,10 +141,19 @@ reportDesigner.Workspace = Workspace.extend({
                     var $icon = $("<span />").addClass('sprite sort none');
                     var $source = $(this.el).find('a[title="' + name + '"]').parent();
                     var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon);
+                    var uuid = _.uniqueId('uid-');
+                    $clone.attr('id', uuid);
+                    var dimension = $source.find('a.dimension').attr('href');
+                    var fieldInfo = dimension.split('/');
+                    var categoryId = fieldInfo[1];
+                    var columnId = fieldInfo[3];
+                    mc = this.query.selectedModel.getColumnById(categoryId, columnId);
+                    this.query.selectedItems[uuid] = mc;
                     //$(this.el).find("a[title='"+name+"']").trigger('click'); 
-                    $source
-                        .css({fontWeight: "bold"})
-                        .draggable('disable');
+                    //[cz] all draggable
+                    //$source
+                    //    .css({fontWeight: "bold"})
+                    //    .draggable('disable');
                     $source.parents('.parent_dimension')
                         .find('span.root.collapsed')
                         .removeClass('collapsed')
@@ -153,10 +162,7 @@ reportDesigner.Workspace = Workspace.extend({
                         .find('.folder_collapsed')
                         .css({fontWeight: "bold"});
                     $source.parent().children()
-                        .css({display: "list-item"}); 
-
-                                              
-                    
+                        .css({display: "list-item"});
                 }    
             }
 
@@ -169,9 +175,19 @@ reportDesigner.Workspace = Workspace.extend({
                     var $source = $(this.el).find('a[title="' + name + '"]').parent();
                     var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon); 
                     //$("<span />").addClass('sort').addClass(group.sort.toLowerCase()).prependTo($clone);
-                    $source
-                        .css({fontWeight: "bold"})
-                        .draggable('disable');
+                    var uuid = _.uniqueId('uid-');
+                    $clone.attr('id', uuid);
+                    var dimension = $source.find('a.dimension').attr('href');
+                    var fieldInfo = dimension.split('/');
+                    var categoryId = fieldInfo[1];
+                    var columnId = fieldInfo[3];
+                    mc = this.query.selectedModel.getColumnById(categoryId, columnId);
+                    this.query.selectedItems[uuid] = mc;
+                    //mc = this.query.selectedModel.getColumnById(categoryId, columnId);
+                    //this.query.selectedItems[uuid] = mc;
+                    //$source
+                    //    .css({fontWeight: "bold"})
+                    //    .draggable('disable');
                     $source.parents('.parent_dimension')
                         .find('span.root.collapsed')
                         .removeClass('collapsed')

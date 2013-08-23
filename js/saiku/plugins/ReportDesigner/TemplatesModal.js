@@ -72,80 +72,82 @@ var TemplatesModal = Modal.extend({
 		return false;
 	},
 	fetch_values: function() {
-		var jqxhr = $.get("http://localhost:8080/saiku-reporting-webapp/rest/saiku-adhoc/rest/discover/getTemplates", function() {
-  			alert("success");
-		}).done(function() { alert("second success"); }).fail(function() { alert("error"); }).always(function() { alert("finished"); });
+		var that = this;
+		var jqxhr = $.get(Settings.REST_URL + "generator/templates",
+			function(data) { 
 
-		/*this.workspace.query.action.get("/SETTINGS", {
-			success: this.populate
-		});*/
+				that.populate(data); });
 	},
-	populate: function(model, response) {
+	
+	populate: function(response) {
 
-		this.json = response;
-
-		$caroussel = $('#template-carousel ul');
-
-		var selected;
+		var query = this.workspace.query;
+		var that = this;
+		var selected = 1;
 		var i = 1;
-
-		$('#template_name').html(response.reportTemplate.name);
+		var template = query.reportSpec.template;
+		var pageSetup = query.reportSpec.pageSetup;
+		$carousel = $('#carousel');
+		$carousel.jcarousel({
+			visible: 3,
+			size: response.length			
+		});
+		$('#template_name').html(template.name);
 		
 		$('#selectedFormat').empty();
-		
-		$.each(Application.session.page_formats, function() {
+		$.each(pageSetup.formatList, function() {
 			$('#selectedFormat').append( new Option(arguments[1],arguments[1]) );
 		});
 
-		$(this.el).find("input[name=margin-top]").val(this.json.marginTop);
-		$(this.el).find("input[name=margin-bottom]").val(this.json.marginBottom);
-		$(this.el).find("input[name=margin-left]").val(this.json.marginLeft);
-		$(this.el).find("input[name=margin-right]").val(this.json.marginRight);
+		$(this.el).find("input[name=margin-top]").val(pageSetup.marginTop);
+		$(this.el).find("input[name=margin-bottom]").val(pageSetup.marginBottom);
+		$(this.el).find("input[name=margin-left]").val(pageSetup.marginLeft);
+		$(this.el).find("input[name=margin-right]").val(pageSetup.marginRight);
 		
-		$("#selectedFormat option[value='" + this.json.pageFormat + "']").attr('selected', 'selected');
-		
-		$.each(Application.session.prpt_templates, function() {
-			var name = this.name.split('.')[0];
+		$("#selectedFormat option[value='" + pageSetup.pageFormat + "']").attr('selected', 'selected');
 
-			if(name == response.reportTemplate.name) {
+		$.each(response, function() {
+			var name = this.name;
+			var url = this.url;
+
+			if(name == template.name) {
 				selected = i;
 			}
-
-			var file = Settings.REST_URL + Settings.RESOURCE_LOCATION + name;
-			$caroussel.append(
-			'<li id="'+ name +'" style="overflow: hidden; float: left; width: 170px; height: 145px;"><img src="'
-			+ file + '.png" width="75" height="75" alt="" /></li>'
+			var nameInfo = name.split('.');
+			var shortName = nameInfo[0];
+			$carousel.jcarousel('add', i,'<li id="'+ shortName +'" class="jcarousel-item-'+i+'" style="overflow: hidden; float: left; width: 75px; height: 75px;"><img src="'+Settings.REST_URL + 'generator/image/' + shortName + '.png" width="75" height="75" alt="" /></li>'
 			);
-
 			i++;
-
 		});
-		var query = this.workspace.query;
+		$("li.jcarousel-item.selected").removeClass('selected');
+		var selectedImage = $("li.jcarousel-item-"+selected).addClass("selected");
 
-		var that = this;
-
-		$('.template-carousel').jcarousel({
-			scroll: 1,
-			visible: 3,
-			start: selected,
-			wrap: 'circular',
-			itemFallbackDimension: 300
-		});
-
-		$(".template-carousel").delegate("li", "click", function() {
+		$("#carousel").delegate("li", "click", function() {
+			$("li.jcarousel-item.selected").removeClass('selected');
 			var clickedItem = $(this).attr('id');
-			//query.template = clickedItem;
-			$('#template_name').html(clickedItem);
-			that.json.reportTemplate.name=clickedItem;
+			var clickedIndex = $(this).attr('jcarouselindex');
+			$("li.jcarousel-item-"+clickedIndex).addClass('selected');
+			var collectedTemplates = $.grep(response, function(source) {
+				var nameInfo = source.name.split('.');
+				var name = nameInfo[0];
+				return (name == clickedItem);
+			});
+			if(!_.isEmpty(collectedTemplates)){
+				var newTemplate = collectedTemplates[0];
+				$('#template_name').html(newTemplate.name);
+				that.query.reportSpec.template = newTemplate;
+			}
 		});
+		
+		/*
 		if(this.json.orientation==0) {
 			$(this.el).find('.landscape').addClass('on');
 		} else {
 			$(this.el).find('.portrait').addClass('on');
 		};
-
+		*/
 		// Show dialog
-		Application.ui.unblock();
+		//Application.ui.unblock();
 
 	},
 	post_render: function(args) {

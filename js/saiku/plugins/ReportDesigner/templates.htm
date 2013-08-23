@@ -221,10 +221,10 @@
         <input name="prompt_parameter" id="prompt_parameter" type="checkbox" />
         &nbsp;&nbsp;
         <label for="parameter_name" class="param_lab">Name</label>
-        <input name="parameter_name" type="text" class="parameter_name" />
+        <input name="parameter_name" type="text" class="parameter_name" disabled />
         &nbsp;&nbsp;
         <label for="parameter_label" class="param_lab">Prompting text</label>
-        <input name="parameter_label" type="text" class="parameter_label" />
+        <input name="parameter_label" type="text" class="parameter_label" disabled />
     </div>
     <hr id="separatorline">
     <div class="simple_filter_row"></div>
@@ -363,9 +363,8 @@
     <div class="alertbox_h1">
         <span>Document Template </span>
     </div>
-    <div id="template-carousel" style="text-align:center"
-        class="template-carousel jcarousel-skin-ie7">
-        <ul>
+    <div style="text-align:center">
+        <ul id="carousel" class="jcarousel-skin-ie7">
         </ul>
     </div>
     <h3 id="template_name" class="top">My Template</h3>
