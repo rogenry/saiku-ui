@@ -301,20 +301,11 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 
 		case "FILTERS":
 			console.log("adding Filter");
-			this.metadataQuery.addConstraint({}, index);
-			var filterModel = {
-				index: index,
-				operatorType: OperatorType.AND,
-				columnMeta: mc,
-				values: null,
-				conditionType: ConditionType.EQUAL,
-				aggType: AggregationFunction.NONE,
-				parameter: null
-			};
+			
 
 			(new SimpleFilterDialog({
-				filterModel: filterModel,
 				workspace: this.workspace,
+				key: dimension,
 				action: "new"
 			})).open();
 
@@ -328,14 +319,17 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 
 	},
 
-	remove_dimension: function(target, indexFrom) {
+	remove_dimension: function(target, indexFrom, dimension) {
 		switch(target) {
 		case "MEASURES":
 			this.reportSpec.removeColumn(indexFrom);
 			this.metadataQuery.removeSelection(indexFrom);
 			break;
 		case "FILTERS":
-			this.metadataQuery.removeConstraint(indexFrom);
+			var constraintModel = this.workspace.constraintModel;
+			var dimInfo = dimension.split("/");
+			delete constraintModel.constraints[dimInfo[3]];
+			constraintModel.save();
 			//Remove the filter from mql-conditions using index;
 			//If mql contains a param, also remove that param from mql
 			//Remove the param from the reportmodel

@@ -246,8 +246,7 @@ saiku.report.Parameter = Parameter;
 			topMargin: 0,
 			rightMargin: 0,
 			bottomMargin: 0,
-			leftMargin: 0,
-			formatList: null
+			leftMargin: 0
 		};
 
 		config = config || {};

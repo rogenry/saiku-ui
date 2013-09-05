@@ -22,6 +22,7 @@
  */
 var SimpleFilterDialog = Modal.extend({
     type: "simpleFilterDialog",
+    filterId: 1,
 
     buttons: [{
         text: "Save",
@@ -36,7 +37,8 @@ var SimpleFilterDialog = Modal.extend({
         'dblclick select option': 'click_move_selection',
         'click div.selection_buttons a.form_button': 'move_selection',
         'click div.updown_buttons a.form_button': 'updown_selection',
-        'click input#prompt_parameter': 'promt_select'
+        'click input#prompt_parameter': 'promt_select',
+        'click a.addRow': 'addRow'
     },
 
     initialize: function(args) {
@@ -44,11 +46,31 @@ var SimpleFilterDialog = Modal.extend({
         _.extend(this, args);
 
         this.workspace = args.workspace;
-        this.filterModel = args.filterModel;
-        this.query = args.workspace.query;
-        this.action = args.action || "change";
+        this.query = this.workspace.query;
+        this.key = args.key;
+        // [F] this.filterModel = args.filterModel;
+        this.constraintModel = this.workspace.constraintModel;
+        var columnInfo = this.key.split("/");
+        this.columnMeta = this.constraintModel.query.selectedModel.getColumnById(columnInfo[1],columnInfo[3]);
+        this.filterModel = {
+                category: this.columnMeta.category,
+                column : this.columnMeta.id,
+                func : "EQUALS",
+                operator : "",
+                aggregation : this.columnMeta.aggTypes[0],
+                value : ""
+        };
+        var blank = new Array;
+            blank.push(_.extend(this.filterModel));
 
-        this.options.title = "Filter on " + this.filterModel.columnMeta.name;
+        this.action = args.action || "change";
+        this.filter = this.constraintModel.getConstraints(columnInfo[3]) || _.extend(blank);
+        this.filter['columnMeta'] = this.columnMeta;
+        this.filterRowCount = this.filter.length;
+
+        // [F] this.options.title = "Filter on " + this.filterModel.columnMeta.name;
+        this.options.title = "Filter on " + this.filter["columnMeta"].name;
+
         this.message = "Fetching values...";
         this.show_unique = false;
 
@@ -61,14 +83,28 @@ var SimpleFilterDialog = Modal.extend({
         var template = _.template($("#template-filter-dialog").html())(this);
 
         $(this.el).find('.dialog_body').html(template);
-                
-        var filterRow = new FilterRow({
-            el: $(this.el).find('.simple_filter_row'),
-            workspace: this.workspace,
-            filterModel: this.filterModel
-        });
 
-        if(this.filterModel.columnMeta.type == "STRING") {
+        if(this.filterRowCount > 0) {
+           for(var i = 0; i < this.filterRowCount; i++) {
+                var filterRow = new FilterRow({
+                el: $(this.el).find('.simple_filter_row'),
+                workspace: this.workspace,
+                filter: this.filter,
+                filterRowCount: i,
+                columnMeta : this.filter['columnMeta']
+                });
+            }
+        } else {     
+            var filterRow = new FilterRow({
+                el: $(this.el).find('.simple_filter_row'),
+                workspace: this.workspace,
+                filter: this.filter,
+                filterRowCount: 0,
+                columnMeta : this.filter['columnMeta']
+            });
+        }
+        
+        if(this.filter['columnMeta'].type == "STRING" && this.filterRowCount <= 1 && this.filter[0].func == "EQUALS") {
 
             this.switch_multiselect();
 
@@ -94,6 +130,7 @@ var SimpleFilterDialog = Modal.extend({
 
         } else {
             this.switch_expression();
+
         }
 
         // Show dialog
@@ -111,7 +148,7 @@ var SimpleFilterDialog = Modal.extend({
             }
         });
 
-        var mc = this.filterModel.columnMeta;
+        var mc = this.filter['columnMeta'];
 
         var selection = {
             table: mc.category,
@@ -166,54 +203,35 @@ var SimpleFilterDialog = Modal.extend({
 
         try {
 
-            //var template = _.template($("#template-selections").html())(this);
-            //$(this.el).find('.dialog_body').html(template);
             this.available_values = response.resultset;
             this.selected_values = null; 
             
-            var getConstraintFromMql = this.workspace.query.metadataQuery.getConstraint(this.filterModel.index);
-            var availableConstraints = new Array();
-            if(!_.isEmpty(getConstraintFromMql)) {
-                var constraint = reportDesigner.mql.Phomp.formulaToJs(getConstraintFromMql.condition);
-                    if(constraint.args) {
-                    $.each(constraint.args,function(j,k) {
-                        if(k.type == "string") {
-                            availableConstraints.push(k.text.replace(/"/g,""));
-                        }
-                    });
-                }
-            }
-            if(!_.isEmpty(availableConstraints)) {
-                this.selected_values = availableConstraints;
-            }
-            
-            var used_values = [];
-            // Populate both boxes
-            if(this.selected_values != null) {
-                $(this.el).find('.used_selections select').removeAttr('disabled');
-                for(var j = 0; j < this.selected_values.length; j++) {
-                    var value = this.selected_values[j];
-                    //if (value.levelUniqueName == this.value.level &&
-                    //    member.type == "MEMBER") {
-                    $("<option />").text(value).val(value).appendTo($(this.el).find('.used_selections select'));
-                    used_values.push(value);
-                    //}
-                }
-            }
-
-            // Filter out used values
-            this.available_values = _.select(this.available_values, function(obj) {
-                return used_values.indexOf(obj[0]) === -1;
+            var selected_values_collected = new Array();
+            $.each(this.filter, function(v,k) {
+                var values = k.value.split(",");
+                $.each(values, function(w,l) {
+                    selected_values_collected.push(l);
+                });
+                
             });
+            this.selected_values = selected_values_collected; 
+
+            if(!_.isEmpty(this.selected_values)) {
+                var self = this;
+                $(this.el).find('.used_selections select').removeAttr('disabled');
+                $.each(this.selected_values, function(key,value) {
+                    $("<option />").text(value).val(value).appendTo($(self.el).find('.used_selections select'));
+                });
+                this.available_values = _.select(this.available_values, function(obj) {
+                    return self.selected_values.indexOf(obj[0]) === -1;
+                });
+            }            
 
             $(this.el).find('.available_selections select').removeAttr('disabled');
             for(var i = 0; i < this.available_values.length; i++) {
-
                 var value = this.available_values[i];
-
                 //More elegant to remove null with _underscore?
                 if( !_.isNull(value[0]) && !_.isEmpty(value[0]) ) {
-
                     $("<option />").text(value[0]).val(value[0]).appendTo($(this.el).find('.available_selections select'));
                 }
 
@@ -247,6 +265,28 @@ var SimpleFilterDialog = Modal.extend({
         $(this.el).find('.simple_filter_row').show();
     },
 
+    call: function(event) {
+        // Determine callback
+        var callback = event.target.hash.replace('#', '');
+        
+        // Attempt to call callback
+        if (! $(event.target).hasClass('disabled_toolbar') && this[callback]) {
+                if(event.target.hash != "#save" && event.target.hash != "#close") {
+                    if(this.filterRowCount > 1 && callback == "switch_multiselect") {
+                        $(this.el).find('#errorline').html("Filter is too complex and cannot be shown as Multi Select!");
+                        return false;        
+                    }
+                    else if(this.filterRowCount == 1 && (this.filter['columnMeta'].type != "STRING" || this.filter[0].func != "EQUALS" || this.filter[0].func != "IN")) {
+                        $(this.el).find('#errorline').html("Filter-Values cannot be shown as Multi Select!");
+                        return false;
+                    }
+                }            
+                $(this.el).find('#errorline').html("");
+                this[callback](event);
+            }
+       return false;
+    },
+
     save: function() {
         //prevent User from saving Filter without values
         if($(this.el).find('div.simple_filter_row').css('display') == 'none') {
@@ -259,27 +299,49 @@ var SimpleFilterDialog = Modal.extend({
         
         // Notify user that updates are in progress
         var $loading = $("<div>Saving...</div>");
-        $(this.el).find('.dialog_body').children().hide();
-        $(this.el).find('.dialog_body').prepend($loading);
-
+        //$(this.el).find('.dialog_body').children().hide();
+        //$(this.el).find('.dialog_body').prepend($loading);
+        var formula;
+        var that = this;
         if(this.multiselect == false) {
-            this.filterModel.conditionType = $(this.el).find('.op option:selected').val();
-            this.filterModel.value = $(this.el).find("input[name=value]").val();
+            var filterRowModels = new Array();
+            var activeFilters = $(this.el).find('.filterrow');
+            $.each(activeFilters,function() {
+                var model = {}; 
+                _.extend(model,that.filterModel);
+                model.func = $(this).find('.op option:selected').val();
+                model.aggregation = $(this).find('.agg option:selected').val();
+                model.value =  $(this).find("input[name=value]").val();
+                model.operator = $(this).find('.opr option:selected').val();
+                filterRowModels.push(model);
+            });
+            
+            filterRowModels['columnMeta'] = this.columnMeta;
+            this.constraintModel.constraints[this.columnMeta.id] = filterRowModels;
+            
         } else {
             var multiSelection = [];
             // Loop through selections
             $(this.el).find('.used_selections option').each(function(i, selection) {
                 multiSelection.push($(selection).val());
             });
-            this.filterModel.value = multiSelection;
+            var multiSelectionJnd = multiSelection.join(",");
+            this.filter[0].value = multiSelectionJnd;
+            this.filter[0].func = "IN";
+            this.filter[0].operator = "AND";
+            
+            this.constraintModel.constraints[this.columnMeta.id] = this.filter;
+           
         }
+        
+        this.constraintModel.save();
 
-        var constraint = {
-            operator: OperatorType.AND,
-            condition: reportDesigner.mql.FilterController.filterRowToFormula(this.filterModel)
-        }
+        // var constraint = {
+        //     operator: OperatorType.AND,
+        //     condition: formula
+        // }
 
-        this.query.metadataQuery.setConstraint(constraint, this.filterModel.index);
+        // this.query.metadataQuery.setConstraint(constraint, this.filterModel.index);
         
         this.finished();
     },
@@ -287,26 +349,8 @@ var SimpleFilterDialog = Modal.extend({
     close: function() {
         //remove from Filter_row
         if(this.action == "new"){
-            var $targetFilter = $(this.workspace.el).find('.fields_list_body.filters').find('a[title="' + this.filterModel.columnMeta.name + '"]').parent('li').remove();
-            this.query.metadataQuery.removeConstraint(this.filterModel.index); 
+            var $targetFilter = $(this.workspace.el).find('.fields_list_body.filters').find('a[title="' + this.filter['columnMeta'].name + '"]').parent('li').remove();
         }
-        
-        //cz alles Dragable
-        //enable dimension in  sidebar
-/*        var $original = $(this.workspace.el).find('.sidebar')
-            .find('a[title="' + this.filterModel.columnMeta.name + '"]').parent('li');
-        $original
-            .draggable('enable')
-            .css({ fontWeight: 'normal' });
-        
-        // Unhighlight the parent if applicable
-        if ($original.parents('.parent_dimension')
-                .children().children('.ui-state-disabled').length === 0) {
-            $original.parents('.parent_dimension')
-                .find('.folder_collapsed')
-                .css({fontWeight: "normal"});
-        }
-*/ 
         $(this.el).dialog('destroy').remove();
    },
 
@@ -357,6 +401,17 @@ var SimpleFilterDialog = Modal.extend({
 		}
     
 	},
+
+    addRow: function(event) {
+        this.filterRowCount++;
+        var filterrow = new FilterRow({
+            el: $(this.el).find('.simple_filter_row'),
+            workspace: this.workspace,
+            filter: this.filter,
+            filterRowCount: this.filterRowCount-1,
+            columnMeta : this.filter['columnMeta']
+        });
+    },
     
     finished: function() {
         $(this.el).dialog('destroy').remove();

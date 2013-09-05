@@ -177,7 +177,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	reflect_format: function(format){
 	
 		this.query = this.workspace.query;
-		this.reportSpec =  this.workspace.reportSpec;
+		//this.reportSpec =  this.query.reportSpec;
 		
 		this.enable_buttons();
 
@@ -243,7 +243,7 @@ var ElementFormatPanel = Backbone.View.extend({
 						that.isEditing = true;
 					},
 					callback: function(unused, enteredText) {
-						that.reportSpec.setValueById(that.element, enteredText);	
+						that.query.reportSpec.setValueById(that.element, enteredText);	
 						that.isEditing=false;
 						that.finished();
 						return true;
@@ -328,7 +328,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	align_left: function(event) {
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
+			panel.query.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
 			HorizontalElementAlignment.LEFT);
 		});
 		this.save();
@@ -337,7 +337,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	align_center: function(event) {
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
+			panel.query.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
 			HorizontalElementAlignment.CENTER);		
 		});
 		this.save();
@@ -346,7 +346,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	align_right: function(event) {
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
+			panel.query.reportSpec.setElementFormatPropertyById(this,'horizontalAlignment',
 			HorizontalElementAlignment.RIGHT);
 		});
 		this.save();
@@ -355,7 +355,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	align_top: function(event) {
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
+			panel.query.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
 			VerticalElementAlignment.TOP);		
 		});
 		this.save();
@@ -364,7 +364,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	align_middle: function(event) {
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
+			panel.query.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
 			VerticalElementAlignment.MIDDLE);
 		});
 		this.save();
@@ -373,7 +373,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	align_bottom: function(event) {
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
+			panel.query.reportSpec.setElementFormatPropertyById(this,'verticalAlignment',
 			VerticalElementAlignment.BOTTOM);
 		});
 		this.save();
@@ -386,11 +386,11 @@ var ElementFormatPanel = Backbone.View.extend({
 		
 		if($(this.el).find('.fontstyle-bold').hasClass('on')){
 			$.each(panel.element_format(), function() {  
-				panel.reportSpec.setElementFormatPropertyById(this,'fontBold',true);
+				panel.query.reportSpec.setElementFormatPropertyById(this,'fontBold',true);
 			});
 		}else{
 			$.each(panel.element_format(), function() {
-				panel.reportSpec.setElementFormatPropertyById(this,'fontBold',false);	
+				panel.query.reportSpec.setElementFormatPropertyById(this,'fontBold',false);	
 			});
 		}
 		this.save();
@@ -403,11 +403,11 @@ var ElementFormatPanel = Backbone.View.extend({
 		
 		if($(this.el).find('.fontstyle-italic').hasClass('on')){
 			$.each(panel.element_format(), function() {
-			panel.reportSpec.setElementFormatPropertyById(this,'fontItalic',true);		
+			panel.query.reportSpec.setElementFormatPropertyById(this,'fontItalic',true);		
 			});
 		}else{
 			$.each(panel.element_format(), function() {
-				panel.reportSpec.setElementFormatPropertyById(this,'fontItalic',false);
+				panel.query.reportSpec.setElementFormatPropertyById(this,'fontItalic',false);
 			});
 		}
 		this.save();
@@ -420,11 +420,11 @@ var ElementFormatPanel = Backbone.View.extend({
 		
 		if($(this.el).find('.fontstyle-udl').hasClass('on')){
 			$.each(panel.element_format(), function() {
-				panel.reportSpec.setElementFormatPropertyById(this,'fontUnderline',true);		
+				panel.query.reportSpec.setElementFormatPropertyById(this,'fontUnderline',true);		
 			});
 		}else{
 			$.each(panel.element_format(), function() {
-				panel.reportSpec.setElementFormatPropertyById(this,'fontUnderline',false);
+				panel.query.reportSpec.setElementFormatPropertyById(this,'fontUnderline',false);
 			});
 		}
 		this.save();

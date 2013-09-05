@@ -16,6 +16,14 @@ var AggTypes = {
    "MAXIMUM" : "Maximum"
 }
 
+var OprTypes = {
+    "NONE" : "", 
+    "OR" : "OR", 
+    "OR NOT" : "OR NOT",
+    "AND" : "AND",
+    "AND NOT" : "AND NOT"
+};
+
 var defaultCalcColumn =
 {"name":"Calculated Column",
 "id":"NEW",

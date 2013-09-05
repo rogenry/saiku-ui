@@ -6,3 +6,5 @@ node_modules/
 .*.swp
 *.iml
 .idea
+js/saiku/plugins/ReportDesigner/SimpleFilterDialog.js.bak
+js/saiku/plugins/ReportDesigner/testPhomp.html
