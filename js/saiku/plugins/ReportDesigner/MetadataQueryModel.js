@@ -35,14 +35,13 @@ var ConditionType = {
 	BEGINSWITH: 'BEGINS WITH',
 	ENDSWITH: 'ENDS WITH',
 	CONTAINS: 'CONTAINS',
-	NOT_CONTAINS: 'DOES NOT CONTAIN',
-	EQUAL: 'EQUALS',
-	LESS_THAN: '<',
-	LESS_THAN_OR_EQUAL: '<=',
-	MORE_THAN: '>',
-	MORE_THAN_OR_EQUAL: '>=',
-	IS_NULL: 'IS NULL',
-	NOT_NULL: 'IS NOT NULL',
+	EQUALS: 'EQUALS',
+	LESS_THAN: '&lt;',
+	LESS_THAN_OR_EQUAL: '&lt;=',
+	MORE_THAN: '&gt;',
+	MORE_THAN_OR_EQUAL: '&gt;=',
+	IS_NULL: 'ISNA',
+	NOT_NULL: 'ISNA',
 	IN: 'IN'
 };
 
@@ -63,13 +62,26 @@ var DataType = {
 
 //Define the comparators that are allowed for a certain datatype
 //TODO: Map them to meaningfull strings for the type (i.e. after instead of more_than on dates)
+var AvailableOperators = {
+HEAD : [
+	"",	
+	"AND",
+	"AND NOT"
+],
+FOLLOW : [
+	"AND",
+	"AND NOT",
+	"OR",
+	"OR NOT",
+]
+};
+
 var AvailableComparators = {
 STRING : [
 	"LIKE",
 	"BEGINSWITH",
 	"ENDSWITH",
 	"CONTAINS",
-	"NOT_CONTAINS",
 	"EQUALS",
 	"LESS_THAN",
 	"LESS_THAN_OR_EQUAL",

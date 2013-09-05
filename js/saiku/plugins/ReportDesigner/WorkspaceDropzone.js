@@ -219,7 +219,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
 
         var index = $target_el.find('li.ui-draggable').index($target_el.find('a[href="#' + dimension + '"]').parent());
 
-        this.workspace.query.remove_dimension(target, index);
+        this.workspace.query.remove_dimension(target, index, dimension);
 
         // Remove element
         $source.addClass('deleted').remove();
@@ -268,13 +268,13 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             }
         }else if(target  == 'FILTERS'){
             console.log("edit Filter");
-            var constraint = this.workspace.query.metadataQuery.getConstraint(index);
-            var filterModel = reportDesigner.mql.FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
-            filterModel.index = index;
+            //var constraint = this.workspace.query.metadataQuery.getConstraint(index);
+            //var filterModel = reportDesigner.mql.FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
+            //filterModel.index = index;
 
             (new SimpleFilterDialog({
-                filterModel: filterModel,
-                workspace: this.workspace
+                key : key,
+                workspace : this.workspace
             })).open();
       }
 

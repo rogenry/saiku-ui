@@ -669,10 +669,6 @@ div.folderexplorer{
    width: 60px !important;
 }
 
-.filterrow {
-  height: 20px;
-}
-
 /*-------------------------------------
 */
 
@@ -725,30 +721,57 @@ div.folderexplorer{
 }
 
 .simple_filter_row select, .simple_filter_row input[type="text"] , .simple_filter_row .datepicker{
-      width: 150px;
-      height: 20px;
-      padding: 0; 
-      margin-left: 5px;
-      line-height: 20px;
+      width: 95px;
+      margin:0 5px 0 0;
+      padding: 0;      
 }
 
 .simple_filter_row .col{
-  height: 20px;
-  line-height: 20px;
-  margin-top: 5px;
+  margin:0 5px 0 0;
+  padding: 0;
 }
 
-.simple_filter_row select.op, .simple_filter_row .col, .simple_filter_row select.agg {
-      float: left;
-      margin-left: 5px;
-      width: 100px;
-    }
+.simple_filter_row select.op, .simple_filter_row .col, .simple_filter_row select.agg, .simple_filter_row select.opr {
+  float: left; 
+  width: 95px;
+  margin-right:5px;
+}
+
+.simple_filter_row input[type="checkbox"] {
+  margin-right: 25px;
+  margin-top: 5px;
+}
    
 .simple_filter_row {
   margin-bottom:10px;
-  padding-left: 50px;
 }
 
+.simple_filter_row div.fr {
+  width:790px;
+  height: 16px;
+  margin-bottom: 5px;
+}
+
+.simple_filter_row div.fr div.frLabel {
+  float:left;
+  font-weight: bold;
+}
+
+.simple_filter_row select, .simple_filter_row input {
+  vertical-align: top;
+}
+
+.simple_filter_row select{
+  height: 20px;
+}
+
+.simple_filter_row input {
+  height: 18px;
+}
+
+.filterrow {
+  clear:left;
+}
 
 hr#separatorline {
   border: none;

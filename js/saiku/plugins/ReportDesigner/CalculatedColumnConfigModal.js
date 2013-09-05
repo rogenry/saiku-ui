@@ -33,7 +33,7 @@
                 formula: '"fomula"'});
 
         }else{
-            this.columnDefinition = this.workspace.reportSpec.fieldDefinitions[this.index];
+            this.columnDefinition = this.query.reportSpec.fieldDefinitions[this.index];
         }
     
       var template = _.template($("#template-column-setup").html())(this);
@@ -119,7 +119,7 @@
 
       $clone.appendTo($selections);		
 
-      this.workspace.reportSpec.addColumn(this.columnDefinition); 	
+      this.query.reportSpec.addColumn(this.columnDefinition); 	
   }
 
 });

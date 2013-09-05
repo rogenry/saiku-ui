@@ -77,7 +77,7 @@ var puc = {
 
         (new SavedQuery({
                         path: path,
-                        model: JSON.stringify(query.workspace.reportSpec)
+                        model: JSON.stringify(query.reportSpec)
                 })).save({ success: function() {
                     puc.refresh_repo();
         }});

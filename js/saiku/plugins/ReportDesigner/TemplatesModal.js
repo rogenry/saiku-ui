@@ -46,9 +46,9 @@ var TemplatesModal = Modal.extend({
 		this.options.resizable = true;
 		this.query = args.workspace.query;
 		this.data = args;
+		var _obj = this; 
 
 		_.bindAll(this, "fetch_values", "populate", "finished","call","changed","page_portrait","page_landscape");
-
 		// Resize when rendered
 		this.bind('open', this.post_render);
 		this.render();
@@ -74,11 +74,9 @@ var TemplatesModal = Modal.extend({
 	fetch_values: function() {
 		var that = this;
 		var jqxhr = $.get(Settings.REST_URL + "generator/templates",
-			function(data) { 
-
-				that.populate(data); });
+			function(data) { that.populate(data); });
 	},
-	
+
 	populate: function(response) {
 
 		var query = this.workspace.query;
@@ -86,7 +84,9 @@ var TemplatesModal = Modal.extend({
 		var selected = 1;
 		var i = 1;
 		var template = query.reportSpec.template;
-		var pageSetup = query.reportSpec.pageSetup;
+		this.pageSetup = query.reportSpec.pageSetup;
+		
+		// Fill carusel with template-pictures
 		$carousel = $('#carousel');
 		$carousel.jcarousel({
 			visible: 3,
@@ -94,18 +94,6 @@ var TemplatesModal = Modal.extend({
 		});
 		$('#template_name').html(template.name);
 		
-		$('#selectedFormat').empty();
-		$.each(pageSetup.formatList, function() {
-			$('#selectedFormat').append( new Option(arguments[1],arguments[1]) );
-		});
-
-		$(this.el).find("input[name=margin-top]").val(pageSetup.marginTop);
-		$(this.el).find("input[name=margin-bottom]").val(pageSetup.marginBottom);
-		$(this.el).find("input[name=margin-left]").val(pageSetup.marginLeft);
-		$(this.el).find("input[name=margin-right]").val(pageSetup.marginRight);
-		
-		$("#selectedFormat option[value='" + pageSetup.pageFormat + "']").attr('selected', 'selected');
-
 		$.each(response, function() {
 			var name = this.name;
 			var url = this.url;
@@ -119,15 +107,20 @@ var TemplatesModal = Modal.extend({
 			);
 			i++;
 		});
+
 		$("li.jcarousel-item.selected").removeClass('selected');
 		var selectedImage = $("li.jcarousel-item-"+selected).addClass("selected");
 
-		$("#carousel").delegate("li", "click", function() {
+		var passArgs ={
+				query:query ,
+				response: response
+			}
+		$("#carousel").delegate("li", "click",passArgs, function(e) {
 			$("li.jcarousel-item.selected").removeClass('selected');
 			var clickedItem = $(this).attr('id');
 			var clickedIndex = $(this).attr('jcarouselindex');
 			$("li.jcarousel-item-"+clickedIndex).addClass('selected');
-			var collectedTemplates = $.grep(response, function(source) {
+			var collectedTemplates = $.grep(e.data.response, function(source) {
 				var nameInfo = source.name.split('.');
 				var name = nameInfo[0];
 				return (name == clickedItem);
@@ -135,24 +128,41 @@ var TemplatesModal = Modal.extend({
 			if(!_.isEmpty(collectedTemplates)){
 				var newTemplate = collectedTemplates[0];
 				$('#template_name').html(newTemplate.name);
-				that.query.reportSpec.template = newTemplate;
+				e.data.query.reportSpec.template = newTemplate;
 			}
 		});
 		
-		/*
-		if(this.json.orientation==0) {
+
+		//Fill Format-Box
+		that = this.pageSetup;
+		$.get(Settings.REST_URL + "generator/formats",
+			function(data) {
+				$('#selectedFormat').empty();
+				$.each(data, function() {
+					$('#selectedFormat').append( new Option(arguments[1],arguments[1]) );
+				});
+				$("#selectedFormat option[value='" + that.pageFormat + "']").attr('selected', 'selected');
+		});
+
+		//Margins
+		$(this.el).find("input[name=margin-top]").val(this.pageSetup.topMargin);
+		$(this.el).find("input[name=margin-bottom]").val(this.pageSetup.bottomMargin);
+		$(this.el).find("input[name=margin-left]").val(this.pageSetup.leftMargin);
+		$(this.el).find("input[name=margin-right]").val(this.pageSetup.rightMargin);
+		
+		
+		if(this.pageSetup.orientation==0) {
 			$(this.el).find('.landscape').addClass('on');
 		} else {
 			$(this.el).find('.portrait').addClass('on');
 		};
-		*/
-		// Show dialog
+		
 		//Application.ui.unblock();
 
 	},
+
 	post_render: function(args) {
     	this.center();
-
 	},
 	changed: function(event) {
 		var that = this;
@@ -161,29 +171,28 @@ var TemplatesModal = Modal.extend({
 	page_landscape: function(event) {
 		$(this.el).find('.landscape').addClass('on');
 		$(this.el).find('.portrait').removeClass('on');
-		this.json.orientation = 0;
+		this.pageSetup.orientation = 0;
 	},
 	page_portrait: function(event) {
 		$(this.el).find('.landscape').removeClass('on');
 		$(this.el).find('.portrait').addClass('on');
-		this.json.orientation = 1;
+		this.pageSetup.orientation = 1;
 	},
 	save: function() {
 
-        this.json.pageFormat = $(this.el).find('#selectedFormat option:selected').val();
+        this.pageSetup.pageFormat = $(this.el).find('#selectedFormat option:selected').val();
         
-		this.json.marginTop = $(this.el).find("input[name=margin-top]").val();
-		this.json.marginBottom = $(this.el).find("input[name=margin-bottom]").val();
-		this.json.marginLeft = $(this.el).find("input[name=margin-left]").val();
-		this.json.marginRight = $(this.el).find("input[name=margin-right]").val();
-
+		this.pageSetup.topMargin = $(this.el).find("input[name=margin-top]").val();
+		this.pageSetup.bottomMargin = $(this.el).find("input[name=margin-bottom]").val();
+		this.pageSetup.leftMargin = $(this.el).find("input[name=margin-left]").val();
+		this.pageSetup.rightMargin = $(this.el).find("input[name=margin-right]").val();
 		
 		// Notify server
-		this.query.action.post('/SETTINGS', {
-			success: this.finished,
-			data: this.json// JSON.stringify(values)
-		});
-
+		// this.query.action.post('/SETTINGS', {
+		// 	success: this.finished,
+		// 	data: this.pageSetup// JSON.stringify(values)
+		// });
+		this.finished();
 		return false;
 
 	},

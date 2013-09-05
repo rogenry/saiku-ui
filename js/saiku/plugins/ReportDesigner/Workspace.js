@@ -4,12 +4,13 @@ reportDesigner.Workspace = Workspace.extend({
 
     initialize: function(args, options) {
 
-        //this.mode = "crosstab";
-
         this.mode = this.options.mode;
+        if(!this.mode) {
+            this.mode = Settings.MODE == 'crosstab' ? 'crosstab': null; 
+        }
 
         this._super("initialize", args);
-
+        
         this.report = new ReportDesigner({
             workspace: this
         });
@@ -17,13 +18,13 @@ reportDesigner.Workspace = Workspace.extend({
         if(typeof args !== 'undefined' && args.query) {
             this.query = this.options.query;
             this.init_query();          
-        } 
+        }        
     },
 
     render: function(){
 
         this._super("render", arguments);
-        // Add results report
+        // Add results report           
         //$(this.el).find('.workspace-report-toolbar').append(_.template($("#report-toolbar").html())());
         
         $(this.el).find('.workspace_report_canvas').append($(this.report.el));
@@ -34,17 +35,16 @@ reportDesigner.Workspace = Workspace.extend({
             el: $(this.el).find('.workspace-report-toolbar')
         });
         this.edit_panel.render();
+
     },
 
-/*
+
     template: function() {
-        var template = $("#template-workspace").html() || "";
+        var template = $("#template-workspace-reporting").html() || "";
         return _.template(template)({
             cube_navigation: Saiku.session.sessionworkspace.cube_navigation
-        });
+        });        
     },
-
-*/
 
     new_query: function() {
 
@@ -101,12 +101,18 @@ reportDesigner.Workspace = Workspace.extend({
             //$(this.el).find('.dimension_tree').html('').append($(this.mdmodel_list.el));
             var tHtml = $(this.el).find('.dimension_tree');
             tHtml.html('').append($(this.mdmodel_list.el));
+            this.constraintModel = new reportDesigner.ConstraintModel({
+                workspace : this,
+                query : this.query
+            });
+
 
         } else {
             // Someone literally selected "Select a model"
             $(this.el).find('.dimension_tree').html('');
             return;
         }
+
         //this.populate_selections();
 
     },
@@ -131,15 +137,14 @@ reportDesigner.Workspace = Workspace.extend({
             var fields = model.fieldDefinitions ? model.fieldDefinitions : false;
             var groups = model.groupDefinitions ? model.groupDefinitions : false;
             //var parameters = model.parameters ? model.parameters : false;
-            
-            
+                        
             if(fields) {
                 var $target = $(this.el).find('.fields_list_body.measures ul')
                 for(var fields_iter = 0; fields_iter < fields.length; fields_iter++) {
                     var field = fields[fields_iter];
                     var name = field.fieldName;
                     var $icon = $("<span />").addClass('sprite sort none');
-                    var $source = $(this.el).find('a[title="' + name + '"]').parent();
+                    var $source = $(this.el).find('.parent_dimension').find('a[title="' + name + '"]').parent();
                     var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon);
                     var uuid = _.uniqueId('uid-');
                     $clone.attr('id', uuid);
@@ -172,9 +177,8 @@ reportDesigner.Workspace = Workspace.extend({
                     var group = groups[groups_iter];
                     var name = group.displayName;
                     var $icon = $("<span />").addClass('sprite sort none');
-                    var $source = $(this.el).find('a[title="' + name + '"]').parent();
+                    var $source = $(this.el).find('.parent_dimension').find('a[title="' + name + '"]').parent();
                     var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon); 
-                    //$("<span />").addClass('sort').addClass(group.sort.toLowerCase()).prependTo($clone);
                     var uuid = _.uniqueId('uid-');
                     $clone.attr('id', uuid);
                     var dimension = $source.find('a.dimension').attr('href');
@@ -196,26 +200,44 @@ reportDesigner.Workspace = Workspace.extend({
                         .find('.folder_collapsed')
                         .css({fontWeight: "bold"});
                     $source.parent().children()
-                        .css({display: "list-item"}); 
+                        .css({display: "list-item"});   
                 } 
             }
 
-            /*
-            if(groups) {
-                var $groups = $(this.el).find('.group ul');
+            var filterList = new Array();
+            var conditions = this.query.metadataQuery.config.mql.constraints;
+            $.each(conditions, function(index, value) {
+                var tempFilter = reportDesigner.mql.Phomp.formulaToJs(value.condition);
+                filterList.push("#CATEGORY/"+tempFilter.args[0].arg.left.text +"/COLUMN/"+ tempFilter.args[0].arg.right.text);
+            });
+            var $target = $(this.el).find('.fields_list_body.filters ul');
+            var self = this;
+            $.each(filterList, function(id,val) {
+                var $icon = $("<span />").addClass('sprite selections');
+                var $source = $(self.el).find('.parent_dimension').find('a[href="' + val + '"]').parent();
+                var $clone = $source.clone().addClass('d_dimension').appendTo($target).prepend($icon);
+                var uuid = _.uniqueId('uid-');
+                $clone.attr('id', uuid);
+                var dimension = $source.find('a.dimension').attr('href');
+                var fieldInfo = dimension.split('/');
+                var categoryId = fieldInfo[1];
+                var columnId = fieldInfo[3];
+                mc = self.query.selectedModel.getColumnById(categoryId, columnId);
+                self.query.selectedItems[uuid] = mc;
+                $source.parents('.parent_dimension')
+                    .find('span.root.collapsed')
+                    .removeClass('collapsed')
+                    .addClass('expand');
+                $source.parents('.parent_dimension')
+                    .find('.folder_collapsed')
+                    .css({fontWeight: "bold"});
+                $source.parent().children()
+                    .css({display: "list-item"}); 
+        });
 
-                for(var groups_iter = 0; groups_iter < groups.length; groups_iter++) {
-                    var group = groups[groups_iter];
-                    var name = group.columnName;
 
-                    var $logicalColumn = $(this.el).find('.category_tree').find('a[title="' + name + '"]').parent();
 
-                    var $clone = $logicalColumn.clone().addClass('d_dimension').appendTo($groups);
-
-                    $("<span />").addClass('sort').addClass(group.sort.toLowerCase()).prependTo($clone);
-                }
-            }
-
+/*
             if(parameters) {
                 var $filters = $(this.el).find('.filter ul');
 
@@ -230,7 +252,7 @@ reportDesigner.Workspace = Workspace.extend({
                     $("<span />").addClass('sprite').prependTo($clone);
                 }
             }
-            */
+*/
            this.query.workspace = this;
            this.query.page = null;
            this.query.run();
@@ -278,7 +300,9 @@ reportDesigner.Workspace = Workspace.extend({
     },
 
     remove_dimension: function(event, ui) {
+        var uid = $(ui.draggable).attr('id');
         this.drop_zones.remove_dimension(event, ui);
+        delete this.query.selectedItems[uid];
     }
 
 });

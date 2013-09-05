@@ -188,10 +188,14 @@
 </script>
 
 <script type="text/template" id="template-filter-row">
-    <div class=".filterrow">
-        <img src="images/src/delete.png" alt="Remove" class="remove" />
+    <div class="filterrow" filterId="<%= availableFilterId %>">
+        <select class="opr">
+            <% _.each(availableOpr, function(oprType) { %>
+            <option value="<%= oprType %>"><%= OprTypes[oprType] %></option>
+            <% }); %>
+        </select>
         <select class="agg">
-            <option value="NONE"></option>
+            <option value=""></option>
             <% _.each(availableAggTypes, function(aggType) { %>
             <option value="<%= aggType %>"><%= AggTypes[aggType] %></option>
             <% }); %>
@@ -203,6 +207,9 @@
             <% }); %>
         </select>
         <input name="value" type="text" class="value" />
+        <input name="prompt_parameter" class="prompt_parameter" type="checkbox" />
+        <input name="parameter_name" type="text" class="parameter_name" disabled/>
+        <input name="parameter_label" type="text" class="parameter_label" disabled />
     </div>
 </script>
 
@@ -215,19 +222,21 @@
             <a href="#switch_expression">build expression</a>
         </li>
     </ul>
+    <div id="errorline" style="text-align: center"></div>
     <hr id="separatorline">
-    <div>
-        <label for="prompt_parameter">Use as a prompt</label>
-        <input name="prompt_parameter" id="prompt_parameter" type="checkbox" />
-        &nbsp;&nbsp;
-        <label for="parameter_name" class="param_lab">Name</label>
-        <input name="parameter_name" type="text" class="parameter_name" disabled />
-        &nbsp;&nbsp;
-        <label for="parameter_label" class="param_lab">Prompting text</label>
-        <input name="parameter_label" type="text" class="parameter_label" disabled />
+    <div class="simple_filter_row">
+        <div style="width:750px; text-align:right; margin-bottom:10px;"><a class="addRow" href="#" style="width:100px;">add Filter</a></div>
+        <div class="fr">
+            <div class="frLabel" style="width: 100px;">Operator</div>
+            <div class="frLabel" style="width: 100px;">Aggregation</div>
+            <div class="frLabel" style="width: 100px;">Field</div>
+            <div class="frLabel" style="width: 100px;">Comparator</div>
+            <div class="frLabel" style="width: 100px;">Value</div>
+            <div class="frLabel" style="width: 50px;">Prompt</div>
+            <div class="frLabel" style="width: 104px;">Name</div>
+            <div class="frLabel" style="width: 100px;">Prompting text</div>
+        </div>
     </div>
-    <hr id="separatorline">
-    <div class="simple_filter_row"></div>
     <div class="select_from_list">
         <div class="available_selections">
             <label for="filter_selections" class="i18n">Search:</label> &nbsp;<input name="'filter_selections" id="filter_selections" type="text" class="filterbox" /> <br />
@@ -374,7 +383,8 @@
     <div class="page_format">
         <ul>
             <li>
-                <select id="selectedFormat" size="3">
+                <div style="">Page Format</div>
+                <select id="selectedFormat" class="selectpicker">
                 </select>
             </li>
             <li id='portrait'>
@@ -487,7 +497,7 @@
         <div class="clear"></div>
 </script-->
 
-<script type="text/x-jquery-tmpl" id="template-workspace">
+<script type="text/x-jquery-tmpl" id="template-workspace-reporting">
     <div class="workspace">
         <div class="workspace_inner">
             <div class="workspace_toolbar"></div>
@@ -528,5 +538,18 @@
 
 <script type="text/x-jquery-tmpl" id="template-edit-panel-details-header">
     <div>Details Header Editor</div>
+</script>
+
+<script type="text/x-jquery-tmpl" id="template-mode-modal">
+    <div style="width:100%; height:100%;">
+        <div class"selectMode" id="Crosstab" style="float:left; width:50%"><img src="images/pivot.png" alt="Remove" class="remove" /></div>
+        <div class"selectMode" id="default" style="width:50%"><img src="images/table.png" alt="Remove" class="remove" /></div>
+    </div>
+</script>
+
+<script type="text/x-jquery-tmpl" id="blackbox">
+    <div style="width:100%; height:100%; background-color:black; position: absolute; left: 0 top: 0">
+        <div style="width: 200px; height:200px; background-color: white">Hier abfragen</div>
+    </div>
 </script>
 

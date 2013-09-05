@@ -69,7 +69,7 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
 
 	changed_distinct: function(event){
         //that.workspace.query.page=null; <- need to do something like that?
-		this.workspace.metadataQuery.config.mql.options.disable_distinct = $(event.target).is(':checked').toString();
+		this.workspace.query.metadataQuery.config.mql.options.disable_distinct = $(event.target).is(':checked').toString();
         this.workspace.query.run(true);
 	},
 

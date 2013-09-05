@@ -30,30 +30,39 @@ var FilterRow = Backbone.View.extend({
     
     initialize: function(args) {
         this.workspace = args.workspace;
-        this.filterModel = args.filterModel;
-
+        this.filterSource = args.filter;
+        this.filterRowCount =  args.filterRowCount;
+        this.columnMeta = args.columnMeta;
+        this.filter = this.filterSource[this.filterRowCount];
+        
         _.bindAll(this, "render", "onColumnSelect");
-
         this.render();
-    
     },
 
     render: function() {
+            
             //wenn es sich um einen simplen filter handelt, dann wird die column festgesetzt
+            
+            this.filterId = this.filterRowCount    
+            
+            var operatorType = this.filterId == 0 ? "HEAD" : "FOLLOW";
+
             var variables = { 
-                availableComparators: AvailableComparators[this.filterModel.columnMeta.type],
-                availableAggTypes: this.filterModel.columnMeta.aggTypes
+                availableComparators: AvailableComparators[this.columnMeta.type],
+                availableAggTypes: this.columnMeta.aggTypes,
+                availableOpr: AvailableOperators[operatorType],
+                availableFilterId: this.filterId,
             }; //entweder alle oder nur eine
 
             //hier müssen noch available comparators rein, entsprechend columnMeta.type
 
             var template = _.template( $("#template-filter-row").html(), variables );
+           
+            this.el.append(template);
 
-            this.el.html( template );
+            $(this.el).find(".col").html(this.columnMeta.name);            
 
-            $(this.el).find(".col").html(this.filterModel.columnMeta.name);            
-
-            if(this.filterModel.columnMeta.type == DataType.DATE){
+            if(this.columnMeta.type == DataType.DATE){
                 $(this.el).find(".value").datepicker({
                 dateFormat: "yy-mm-dd",
                 changeMonth: true,
@@ -61,14 +70,16 @@ var FilterRow = Backbone.View.extend({
                 //defaultDate: selectedDateFrom,
                 //minDate: startDate,
                 //maxDate: endDate,
-                onSelect: function(date, input){     
-                //alert(date);    
+                onSelect: function(date, input){
                 }});
             }
 
-            $(this.el).find('.op option:selected').val(this.filterModel.conditionType);
-            $(this.el).find("input[name=value]").val(this.filterModel.value);
+            
 
+            $(this.el).find('.filterrow[filterId = '+this.filterRowCount+']').find('.op option[value='+this.filter.func+']').attr('selected',true);
+            $(this.el).find('.filterrow[filterId = '+this.filterRowCount+']').find("input[name=value]").val(this.filter.value);
+            $(this.el).find('.filterrow[filterId = '+this.filterRowCount+']').find('.opr option[value="'+this.filter.operator+'"]').attr('selected',true);
+        
             //disables
 
     },
