@@ -30,7 +30,7 @@ var ReportDesigner = Backbone.View.extend({
         // Bind table rendering to query result event
         _.bindAll(this, "render", "process_data", "show_editor", "prevPage", "nextPage", "firstPage", "lastPage");
         
-        this.workspace.bind('query:report', this.render);
+        this.workspace.bind('report:result', this.render);
                 
        	this.workspace.bind('report:edit', this.show_editor);
 
@@ -110,12 +110,21 @@ var ReportDesigner = Backbone.View.extend({
 		this.dragresize.render();
 		
 		var self = this;
-		
+		/*
 		$(this.el).find('.col-header').mouseover(function(event){
 			self.dragresize.summonDragResize(event);});
 
 		$(this.el).find('.col-header').mouseout(function(event){
 			self.dragresize.banishDragResize(event);});			
+*/
+
+$(".report_border > table")
+            .kiketable_colsizable({
+                dragMove : false, 
+                dragProxy : "area",
+                dragCells : ".col-header",
+                })
+
 
         this.workspace.query.trigger('report:render', {
             workspace: this.workspace,

@@ -110,7 +110,7 @@ var SimpleFilterDialog = Modal.extend({
 
             this.build_filterquery();
 
-            var mqlQueryString = this.metadataQuery.toXml();
+            var mqlQueryString = "blublub"; // this.metadataQuery.toXml();
 
             this.filterResult = new FilterResult();
 

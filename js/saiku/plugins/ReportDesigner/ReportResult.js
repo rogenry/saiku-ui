@@ -33,7 +33,7 @@ var ReportResult = Backbone.Model.extend({
 
 		this.query.workspace.trigger('FSM:EReportResult');
 
-		this.query.workspace.trigger('query:report', {
+		this.query.workspace.trigger('report:result', {
 			workspace: this.query.workspace,
 			data: response
 		});
@@ -46,7 +46,9 @@ var ReportResult = Backbone.Model.extend({
 		var template = this.query.template!=null ? this.query.template : "default";
 		var page = this.query.page!=null ? this.query.page : "1";
 		return encodeURI("generator" + "/webreport/" + page) + "?nocache="+new Date();
-	},
+	}
+
+/* ,
 	fetch: function (options) {
          options.cache = false;
 		 options.type = 'POST';
@@ -57,6 +59,7 @@ var ReportResult = Backbone.Model.extend({
 		 options.data = JSON.stringify(this.query.reportSpec);
          return Backbone.Model.prototype.fetch.call(this, options);
      }
+*/
  });
 
 var FilterResult = Backbone.Model.extend({

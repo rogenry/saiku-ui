@@ -1,9 +1,9 @@
     </script>
         <script type="text/x-jquery-tmpl" id="template-reportdesigner-workspace-toolbar">
         <ul> 
-            <li><a href="#toggle_report" 
+            <!--li><a href="#toggle_report" 
                 class="i18n view button disabled_toolbar sprite" 
-                title="Switch Table/Report"></a></li>
+                title="Switch Table/Report"></a></li-->
             <li class="seperator"   ><a href="#save_query" 
                 class="i18n save button disabled_toolbar sprite" 
                 title="Save query"></a></li>
@@ -13,6 +13,9 @@
              <li><a href="#automatic_execution" 
                 class="i18n auto button disabled_toolbar sprite" 
                 title="Automatic execution"></a></li>
+            <li><a href="#show_sql" 
+                class="i18n mdx button disabled_toolbar sprite" 
+                title="Show SQL"></a></li>
              <li><a href="#toggle_fields" 
                 class="i18n toggle_fields button sprite"
                 title="Toggle fields"></a></li>
@@ -502,10 +505,10 @@
         <div class="workspace_inner">
             <div class="workspace_toolbar"></div>
             <div class="workspace_editor"></div>
+            <div class="workspace-report-toolbar"></div>
             <div class="workspace_results">
                 <div id="content">
                     <div class="workspace_report">
-                        <div class="workspace-report-toolbar"></div>
                         <div class="workspace_report_canvas"></div>
                     </div>
                 </div>

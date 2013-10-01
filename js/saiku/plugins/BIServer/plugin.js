@@ -26,12 +26,11 @@
 **/
 
 var puc = {
+
     allowSave: function(isAllowed) {
-        if(window.parent.mantle_initialized !== undefined && window.parent.mantle_initialized && 
-            window.parent.enableAdhocSave ) {
-            if (window.ALLOW_PUC_SAVE === undefined || ALLOW_PUC_SAVE) {
-                window.parent.enableAdhocSave(isAllowed);
-            }
+        if(window.parent != null && window.parent.mantle_initialized == true
+            && window.parent.enableSave ) {
+            window.parent.enableSave( isAllowed );
         }
     },
 
@@ -64,16 +63,14 @@ var puc = {
         });
     },
 
-    save_report_to_solution: function(filename, solution, path, type, overwrite) {
+    save_report_to_solution: function(path, filename, overwrite) {
         var query = Saiku.tabs._tabs[0].content.query;
 
         filename = filename 
             && filename.length > ".srpt".length
             && filename.substring(filename.length - ".srpt".length,filename.length) == ".srpt" ? filename : filename + ".srpt";
 
-        var path = (solution ? (solution + "/") : "")
-                        + (path ? (path + "/") : "")
-                        + (filename || "");
+        var path = (path ? (path + "/") : "") + (filename || "");
 
         (new SavedQuery({
                         path: path,
@@ -84,6 +81,12 @@ var puc = {
 
     }   
 };
+
+
+function handle_puc_save(path, name, overwrite) {
+    puc.save_report_to_solution(path, name, overwrite);
+};
+
 
 /**
  * Objects required for BI server integration
@@ -111,7 +114,8 @@ var savePg0 = function() {};
  */
 if (Settings.BIPLUGIN) {
     Settings.PLUGIN = true;
-    Settings.REST_URL = "../";
+    //Settings.REST_URL = "../";
+    Settings.REST_URL = "../../../plugin/saiku-reporting/api/"
 
     $(document).ready(function() {
         Saiku.session = new Session();
@@ -154,7 +158,7 @@ var BIPlugin = {
             puc.allowSave(isAllowed);
         });
 
-        workspace.bind('query:report', function(args) {
+        workspace.bind('report:result', function(args) {
             var isAllowed = args.data && args.data.data.length > 0;
             puc.allowSave(isAllowed);
         });

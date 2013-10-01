@@ -41,7 +41,10 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
         
         this._super("initialize", arguments);
 
-         _.bindAll(this, "call", "changed_rowlimit", "changed_distinct", "reflect_properties", "run_query", "toggle_report", "calculated_column");
+         _.bindAll(this, "call", "changed_rowlimit", "changed_distinct", "reflect_properties", "run_query", 
+            "toggle_report", "calculated_column");
+
+        this.workspace.bind('report:result', this.activate_buttons);
 
     },
 
@@ -53,7 +56,7 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
             $(args.workspace.toolbar.el).find('.button')
                 .addClass('disabled_toolbar');
             $(args.workspace.toolbar.el)
-                .find('.auto,.formula,.toggle_fields,.toggle_sidebar, .export_xls, .export_pdf, .export_csv,.cda,.prpt, .view, .report')
+                .find('.auto,.formula,.toggle_fields,.toggle_sidebar,.mdx, .export_xls, .export_pdf, .export_csv,.cda,.prpt, .view, .report')
                 .removeClass('disabled_toolbar');
         }
     },
@@ -157,15 +160,15 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
     },
 
     export_pdf: function(event) {
-        var data = encodeURI(JSON.stringify(this.workspace.reportSpec));
+        var data = encodeURI(JSON.stringify(this.workspace.query.reportSpec));
         var inputs ='<input type="hidden" name="json" value="'+ data +'" accept-charset="utf-8"/>'; 
-        var url = Settings.REPORTING_REST_MOUNT_POINT + "/generator/pdf";
-
+        //var url = Settings.REPORTING_REST_MOUNT_POINT + "/generator/pdf";
+        var url = Settings.REST_URL + encodeURI("generator/pdf");
         $('<form action="'+ url +'" method="post" target="_new" class="hidden">'+inputs+'</form>')
         .appendTo('body').submit().remove();
-
     },
 
+/*
     export_cda: function(event) {
         (new ExportFileModal({
             workspace: this.workspace,
@@ -178,7 +181,29 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
             workspace: this.workspace,
             extension: "PRPT"
         })).open();   
-    } 
+    },
+*/
+
+    show_sql: function(event) {
+
+
+        var sql = new SQLString();
+        sql.save(null, 
+            {
+                error: function(model, response) {
+                },
+                success: function(model, response) {
+                    console.log("OK");
+                    (new SQLModal({ sql: response.sql})).render().open();
+                    return false;
+                },
+                contentType:  'application/json',
+                data: this.workspace.query.reportSpec.dataSource.queryString
+            });
+
+            //(new SQLModal({ sql: sql})).render().open();
+
+    }
 
 });
 

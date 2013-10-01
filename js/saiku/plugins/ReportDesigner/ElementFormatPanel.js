@@ -35,7 +35,7 @@ var ElementFormatPanel = Backbone.View.extend({
 
 		this.workspace = args.workspace;
 
-		this.workspace.bind('query:report', this.enable_template_button);
+		this.workspace.bind('report:result', this.enable_template_button);
 
 		_.extend(this, args);
 		_.extend(this, Backbone.Events);
@@ -62,7 +62,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	textcolor_callback: function(panel) {
 		return function (color){
 			$.each(panel.element_format(), function() { 
-				panel.reportSpec.setElementFormatPropertyById(this,'fontColor',color.toHexString());
+				panel.query.reportSpec.setElementFormatPropertyById(this,'fontColor',color.toHexString());
 			});
 			panel.save();
 		}
@@ -71,7 +71,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	bgcolor_callback: function(panel) {
 	return function (color){
 			$.each(panel.element_format(), function() {  
-				panel.reportSpec.setElementFormatPropertyById(this,'backgroundColor',color.toHexString());
+				panel.query.reportSpec.setElementFormatPropertyById(this,'backgroundColor',color.toHexString());
 			});
 			panel.save();
 		}
@@ -79,7 +79,7 @@ var ElementFormatPanel = Backbone.View.extend({
 
 	font_callback: function(panel) {
 		return function(event){
-			panel.reportSpec.setElementFormatPropertyById(panel.element,'fontName',$(event.target).val());		
+			panel.query.reportSpec.setElementFormatPropertyById(panel.element,'fontName',$(event.target).val());		
 			panel.save();
 		}
 	},
@@ -87,7 +87,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	font_select: function(event){
 		var panel = this;
 		$.each(panel.element_format(), function() { 
-			panel.reportSpec.setElementFormatPropertyById(this,'fontName',$(event.target).val());		
+			panel.query.reportSpec.setElementFormatPropertyById(this,'fontName',$(event.target).val());		
 		});
 		this.save();
 	},
@@ -95,7 +95,7 @@ var ElementFormatPanel = Backbone.View.extend({
 	size_select: function(event){
 		var panel = this;
 		$.each(panel.element_format(), function() {  
-			panel.reportSpec.setElementFormatPropertyById(this,'fontSize',$(event.target).val());		
+			panel.query.reportSpec.setElementFormatPropertyById(this,'fontSize',$(event.target).val());		
 		});
 		this.save();
 	},
@@ -175,6 +175,8 @@ var ElementFormatPanel = Backbone.View.extend({
 	},
 
 	reflect_format: function(format){
+
+		console.log(JSON.stringify(format));
 	
 		this.query = this.workspace.query;
 		//this.reportSpec =  this.query.reportSpec;

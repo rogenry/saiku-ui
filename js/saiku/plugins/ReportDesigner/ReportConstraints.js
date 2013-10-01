@@ -144,15 +144,15 @@ var reportDesigner = reportDesigner || {};
 
 		save: function() {
 			var self = this;
-			var constrainCollector = new Array();
+			var constraintCollector = new Array();
 			$.each(this.constraints, function() {
 				$.each(this,function(){
 					var formula = self.generateMqlFormula(this)
-					constrainCollector.push(formula);
+					constraintCollector.push(formula);
 				}); 
 				
 			});
-			this.query.metadataQuery.config.mql.constraints = constrainCollector;
+			this.query.metadataQuery.config.mql.constraints = constraintCollector;
 		}
 
 	};
