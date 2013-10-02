@@ -71,7 +71,7 @@ var FilterResult = Backbone.Model.extend({
     },
 
     url: function() {
-    	return encodeURI("generator/filtervalues/");
+    	return encodeURI("generator/filtervalues");
     }
 
 });

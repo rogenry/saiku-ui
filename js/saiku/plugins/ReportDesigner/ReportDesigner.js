@@ -85,14 +85,22 @@ var ReportDesigner = Backbone.View.extend({
     	this.json = json.data;
 		var servermodel = json.data.reportModel;
 		this.workspace.serverReportSpec = new reportDesigner.ReportSpecification(servermodel);
-    	
+    	var pageSetup = this.workspace.serverReportSpec.pageSetup;
     	var html = json.data.data;
 
 		//$('.workspace_results').hide();
     	$(this.el).empty();
         $(this.el).html(html).wrapInner('<div class="report_border" />');
-		$('.report_border').width($('.report_border table').width());
-		
+        var correctWidth = $('.report_border table').width() + pageSetup.leftMargin + pageSetup.rightMargin;
+        var correctHeight = $('.report_border table').height() + pageSetup.topMargin + pageSetup.bottomMargin;
+		$('.report_border').width(correctWidth);
+		$('.report_border').height(correctHeight);
+
+        $('.report_border table').css('margin-top', pageSetup.topMargin);
+        $('.report_border table').css('margin-left', pageSetup.leftMargin);
+
+
+
 		$(".pager #curr_page").html(json.data.currentPage + 1);;		
 		$(".pager #off_page").html(json.data.pageCount);
 		

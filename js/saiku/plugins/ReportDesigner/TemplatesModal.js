@@ -135,7 +135,7 @@ var TemplatesModal = Modal.extend({
 
 		//Fill Format-Box
 		that = this.pageSetup;
-		$.get(Settings.REST_URL + "generator/formats",
+		$.get(Settings.REST_URL + "metadata/discover/pageformats",
 			function(data) {
 				$('#selectedFormat').empty();
 				$.each(data, function() {
@@ -151,7 +151,7 @@ var TemplatesModal = Modal.extend({
 		$(this.el).find("input[name=margin-right]").val(this.pageSetup.rightMargin);
 		
 		
-		if(this.pageSetup.orientation==0) {
+		if(this.pageSetup.pageOrientation==0) {
 			$(this.el).find('.landscape').addClass('on');
 		} else {
 			$(this.el).find('.portrait').addClass('on');
@@ -171,12 +171,12 @@ var TemplatesModal = Modal.extend({
 	page_landscape: function(event) {
 		$(this.el).find('.landscape').addClass('on');
 		$(this.el).find('.portrait').removeClass('on');
-		this.pageSetup.orientation = 0;
+		this.pageSetup.pageOrientation = 0;
 	},
 	page_portrait: function(event) {
 		$(this.el).find('.landscape').removeClass('on');
 		$(this.el).find('.portrait').addClass('on');
-		this.pageSetup.orientation = 1;
+		this.pageSetup.pageOrientation = 1;
 	},
 	save: function() {
 

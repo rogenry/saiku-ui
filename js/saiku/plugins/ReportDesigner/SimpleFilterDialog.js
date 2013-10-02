@@ -37,7 +37,7 @@ var SimpleFilterDialog = Modal.extend({
         'dblclick select option': 'click_move_selection',
         'click div.selection_buttons a.form_button': 'move_selection',
         'click div.updown_buttons a.form_button': 'updown_selection',
-        'click input#prompt_parameter': 'promt_select',
+        'click input.prompt_parameter': 'prompt_select',
         'click a.addRow': 'addRow'
     },
 
@@ -58,7 +58,9 @@ var SimpleFilterDialog = Modal.extend({
                 func : "EQUALS",
                 operator : "",
                 aggregation : this.columnMeta.aggTypes[0],
-                value : ""
+                value : null,
+                prompt : 0,
+                param : ""
         };
         var blank = new Array;
             blank.push(_.extend(this.filterModel));
@@ -104,13 +106,13 @@ var SimpleFilterDialog = Modal.extend({
             });
         }
         
-        if(this.filter['columnMeta'].type == "STRING" && this.filterRowCount <= 1 && this.filter[0].func == "EQUALS") {
+        if(this.filter['columnMeta'].type == "STRING" && this.filterRowCount <= 1 && (this.filter[0].func == "EQUALS" || this.filter[0].func == "IN")) {
 
             this.switch_multiselect();
 
             this.build_filterquery();
 
-            var mqlQueryString = "blublub"; // this.metadataQuery.toXml();
+            var mqlQueryString = this.metadataQuery.toXml();
 
             this.filterResult = new FilterResult();
 
@@ -208,11 +210,12 @@ var SimpleFilterDialog = Modal.extend({
             
             var selected_values_collected = new Array();
             $.each(this.filter, function(v,k) {
-                var values = k.value.split(",");
-                $.each(values, function(w,l) {
-                    selected_values_collected.push(l);
-                });
-                
+                if(k.value!=null){
+                    var values = k.value.split(",");
+                    $.each(values, function(w,l) {
+                        selected_values_collected.push(l);
+                    });
+                }
             });
             this.selected_values = selected_values_collected; 
 
@@ -276,10 +279,14 @@ var SimpleFilterDialog = Modal.extend({
                         $(this.el).find('#errorline').html("Filter is too complex and cannot be shown as Multi Select!");
                         return false;        
                     }
-                    else if(this.filterRowCount == 1 && (this.filter['columnMeta'].type != "STRING" || this.filter[0].func != "EQUALS" || this.filter[0].func != "IN")) {
+                    else if(this.filterRowCount == 1 && this.filter['columnMeta'].type != "STRING") {
                         $(this.el).find('#errorline').html("Filter-Values cannot be shown as Multi Select!");
                         return false;
                     }
+                    else if(this.filterRowCount == 1 && (this.filter[0].func != "EQUALS" && this.filter[0].func != "IN")) {
+                        $(this.el).find('#errorline').html("Filter is too complex and cannot be shown as Multi Select!");
+                        return false;        
+                    }   
                 }            
                 $(this.el).find('#errorline').html("");
                 this[callback](event);
@@ -299,8 +306,6 @@ var SimpleFilterDialog = Modal.extend({
         
         // Notify user that updates are in progress
         var $loading = $("<div>Saving...</div>");
-        //$(this.el).find('.dialog_body').children().hide();
-        //$(this.el).find('.dialog_body').prepend($loading);
         var formula;
         var that = this;
         if(this.multiselect == false) {
@@ -311,8 +316,18 @@ var SimpleFilterDialog = Modal.extend({
                 _.extend(model,that.filterModel);
                 model.func = $(this).find('.op option:selected').val();
                 model.aggregation = $(this).find('.agg option:selected').val();
-                model.value =  $(this).find("input[name=value]").val();
                 model.operator = $(this).find('.opr option:selected').val();
+                //PARAMETER OR NOT?
+                if($(this).find('.prompt_parameter').prop('checked')) {
+                    model.prompt = 1;
+                    var parameter_name =  $(this).find('.parameter_name').val();
+                    var parameter_label =  $(this).find('.parameter_label').val();
+                    model.param = parameter_name;
+                    model.value = "[param:"+parameter_name+"]";
+                    that.constraintModel.setParameter(parameter_name,parameter_label,$(this).find("input[name=value]").val(),that.columnMeta.id);
+                } else { 
+                    model.value =  $(this).find("input[name=value]").val();
+                }
                 filterRowModels.push(model);
             });
             
@@ -331,18 +346,9 @@ var SimpleFilterDialog = Modal.extend({
             this.filter[0].operator = "AND";
             
             this.constraintModel.constraints[this.columnMeta.id] = this.filter;
-           
         }
-        
+
         this.constraintModel.save();
-
-        // var constraint = {
-        //     operator: OperatorType.AND,
-        //     condition: formula
-        // }
-
-        // this.query.metadataQuery.setConstraint(constraint, this.filterModel.index);
-        
         this.finished();
     },
 
@@ -389,18 +395,16 @@ var SimpleFilterDialog = Modal.extend({
         }
     },
 
-    promt_select: function(event){
+    prompt_select: function(event){
+        var filterId = $(event.target).attr('filterid');
         if($(event.target).prop('checked')) {
-            $(this.el).find('input.parameter_name').prop('disabled', false);
-            $(this.el).find('input.parameter_label').prop('disabled', false);
-            $(this.el).find('.param_lab').css("color","black");
+            $(this.el).find('input.parameter_name[filterid='+filterId+']').prop('disabled', false).css('background-color','#ffffff');
+            $(this.el).find('input.parameter_label[filterid='+filterId+']').prop('disabled', false).css('background-color','#ffffff');
         } else {
-            $(this.el).find('input.parameter_name').prop('disabled', true);
-            $(this.el).find('input.parameter_label').prop('disabled', true);
-            $(this.el).find('.param_lab').css("color","#cccccc");
+            $(this.el).find('input.parameter_name[filterid='+filterId+']').prop('disabled', true).css('background-color','#cccccc');
+            $(this.el).find('input.parameter_label[filterid='+filterId+']').prop('disabled', true).css('background-color','#cccccc');
 		}
-    
-	},
+    },
 
     addRow: function(event) {
         this.filterRowCount++;

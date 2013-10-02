@@ -16,7 +16,8 @@ var exports = reportDesigner.mql;
 
         var filterModel = {};
 
-        if(js.name != "AND" && js.name != "OR") {
+        if(js.name != null && js.name != "AND" && js.name != "OR") {
+            filterModel.filterType = "MULTI";
             var filterLength = js.args.length;
             var filterValues = new Array();
             var category = js.args[0].arg.left.text;
@@ -28,13 +29,42 @@ var exports = reportDesigner.mql;
             filterModel.value = filterValues;
             filterModel.columnMeta = query.selectedModel.getColumnById(category,column);
             filterModel.aggType = filterModel.columnMeta.aggTypes[0];
-
-        } else {
-            alert("this seems to be a complex filter");
         }
+        else {
+            filterModel.filterType = "ROW";
+            var category = js.args[0].left.arg.left.text;
+            var column = js.args[0].left.arg.right.text;
+            var filterValues = new Array();
+            var filterConditionTypes = new Array();
+            var a = 0;
+            $.each(js.args, function() {
+                var conType = this.text;
+                switch(conType) {
+                    case("<") : 
+                        filterConditionTypes[a] = "LESS_THAN";
+                        break;
+                    case("<=") : 
+                        filterConditionTypes[a] = "LESS_THAN_OR_EQUAL";
+                        break;
+                    case(">") : 
+                        filterConditionTypes[a] = "MORE_THAN";
+                        break;
+                    case(">=") : 
+                        filterConditionTypes[a] = "MORE_THAN_OR_EQUAL";
+                        break;
+                    default: break;
+                }
+                filterValues[a] = FilterController.stringToValue(this.right.text);                
+                a++;
+            },{filterValues:filterValues, a:a, filterConditionTypes:filterConditionTypes});
 
+            filterModel.value = filterValues;
+            filterModel.conditionType = filterConditionTypes;
+            filterModel.columnMeta = query.selectedModel.getColumnById(category,column);
+            filterModel.aggType = filterModel.columnMeta.aggTypes[0];
+            filterModel.count = js.args.length; 
+        }
         return filterModel;
-
     };
 
     FilterController.filterRowToFormula = function(model) {
