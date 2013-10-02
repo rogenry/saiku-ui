@@ -1,12 +1,12 @@
     </script>
         <script type="text/x-jquery-tmpl" id="template-reportdesigner-workspace-toolbar">
         <ul> 
-            <!--li><a href="#toggle_report" 
+            <!--<li><a href="#toggle_report" 
                 class="i18n view button disabled_toolbar sprite" 
-                title="Switch Table/Report"></a></li-->
+                title="Switch Table/Report"></a></li>
             <li class="seperator"   ><a href="#save_query" 
                 class="i18n save button disabled_toolbar sprite" 
-                title="Save query"></a></li>
+                title="Save query"></a></li>-->
             <li class="seperator"><a href="#run_query" 
                 class="i18n run button disabled_toolbar sprite" 
                 title="Run query"></a></li>
@@ -25,9 +25,9 @@
             <li class="seperator"><a href="#calculated_column" 
                 class="i18n formula button  sprite" 
                 title="Add Calculated Column"></a></li>
-            <li><a href="#add_union" 
+            <!--<li><a href="#add_union" 
                 class="i18n union button sprite" 
-                title="Add Union"></a></li>
+                title="Add Union"></a></li>-->
             <!--li><a href="#add_join" 
                 class="i18n join button  sprite" 
                 title="Add Join"></a></li-->
@@ -210,9 +210,9 @@
             <% }); %>
         </select>
         <input name="value" type="text" class="value" />
-        <input name="prompt_parameter" class="prompt_parameter" type="checkbox" />
-        <input name="parameter_name" type="text" class="parameter_name" disabled/>
-        <input name="parameter_label" type="text" class="parameter_label" disabled />
+        <input name="prompt_parameter" class="prompt_parameter" filterid="<%= availableFilterId %>" type="checkbox" />
+        <input name="parameter_name" type="text" class="parameter_name" filterid="<%= availableFilterId %>" disabled/>
+        <input name="parameter_label" type="text" class="parameter_label" filterid="<%= availableFilterId %>" disabled/>
     </div>
 </script>
 

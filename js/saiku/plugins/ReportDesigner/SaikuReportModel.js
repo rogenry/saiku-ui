@@ -177,26 +177,26 @@ var VerticalElementAlignment = {
 	});
 	reportDesigner.Chart = Chart;
 
-	/*
- *Ein Parameter-Objekt hat drei Funktionen:
- * - Bei der PRPT Synthese auf dem Server dient es als Blaupause für den Param im prpt und im cda
- * - Der client kann damit den Parameterdialog rendern
- * - Es gibt einen endpoint, der damit ein cdf/cda fragment rendern kann
+	
+ 	// * - Ein Parameter-Objekt hat drei Funktionen:
+ 	// * - Bei der PRPT Synthese auf dem Server dient es als Blaupause für den Param im prpt und im cda
+ 	// * - Der client kann damit den Parameterdialog rendern
+ 	// * - Es gibt einen endpoint, der damit ein cdf/cda fragment rendern kann
 
-var Parameter;
-(Parameter = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
-{
-	prompt : true,
-	name:
-	label:
-	defaultValue: []
-	dataSource:
-	keyColumn:
-	valueColumn:
-	widgetType: //wird das hier ein cdf widget?
-};
-saiku.report.Parameter = Parameter;
- */
+	/*var Parameter;
+	(Parameter = function(config) {config = config || {}; var p; for (p in config) {this[p] = config[p]}; }).prototype =  
+	{
+		prompt : true,
+		name:
+		label:
+		defaultValue: []
+		dataSource:
+		keyColumn:
+		valueColumn:
+		widgetType: //wird das hier ein cdf widget?
+	};
+	saiku.report.Parameter = Parameter;*/
+
 
 	var Label;
 	(Label = function(config) {

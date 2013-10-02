@@ -774,6 +774,10 @@ div.folderexplorer{
   clear:left;
 }
 
+input.parameter_name, input.parameter_label  {
+  background-color: #dddddd;
+}
+
 hr#separatorline {
   border: none;
   border-top: 1px gray solid;

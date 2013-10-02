@@ -6,7 +6,7 @@ var reportDesigner = reportDesigner || {};
 	(ConstraintModel = function(args) {
 		
 		_.extend(this, args);
-		_.bindAll(this, "getMql", "parseMql","parse", "getConstraints", "save");
+		_.bindAll(this, "getMql", "parseMql","parse", "getConstraints", "save", "setParameter", "getParameter", "deleteParameter");
 		this.workspace = args.workspace;
 		this.query = args.query;
 		
@@ -14,7 +14,6 @@ var reportDesigner = reportDesigner || {};
 		this.modelId =  null;
 	    this.domainType = null;
 	    this.domainId = null;
-		this.constraints = {};
 		this.parameter = {};
 
 		this._frml = {
@@ -57,7 +56,9 @@ var reportDesigner = reportDesigner || {};
 				func : null,
 				operator : c.operator,
 				aggregation : null,
-				value : null
+				value : null,
+				param : null,
+
 			};
 			//c.condition = 'IN([BT_CUSTOMERS.BC_CUSTOMERS_CUSTOMERNAME];"Adam Smith";"Brian Jones")';
 
@@ -110,7 +111,7 @@ var reportDesigner = reportDesigner || {};
 			return this.constraints[column];
 		},
 
-		generateMqlFormula: function(constraint) {
+		generateMqlFormula: function(constraint,usedParams) {
 			var f = {}; 
 			_.extend(f,this._frml);
 			var funcs = new Array("LIKE","BEGINSWITH","ENDSWITH","CONTAINS","EQUALS","IS_NULL","NOT_NULL","IN");
@@ -139,20 +140,53 @@ var reportDesigner = reportDesigner || {};
 				p2 = ConditionType[constraint.func]+constraint.value;
 				f.condition = p1 + p2;
 			}
+			//Check for param [param:PARAM_NAME] in value
+			var searchParam = new RegExp('\\[param:(.*?)\\]',["i"]);
+			var result = searchParam.exec(p2);
+			if(result) {
+				usedParams.push(result[1]);
+			}
 		return f;
+		},
+
+		setParameter: function(paramName,paramLabel,defaultVal,column) {
+			var parameter = {
+				name : paramName,
+				label : paramLabel,
+				values : defaultVal,
+				column : column
+			};
+			this.parameter[paramName] = parameter;
+			return true;
+		},
+
+		getParameter: function(paramName) {
+			return this.parameter[paramName];
+		},
+
+		deleteParameter: function(paramName) {
+			delete this.parameter[paramName];	
+			return true;
 		},
 
 		save: function() {
 			var self = this;
-			var constraintCollector = new Array();
+			var usedParams = new Array();
+			var constrainCollector = new Array();
 			$.each(this.constraints, function() {
 				$.each(this,function(){
-					var formula = self.generateMqlFormula(this)
-					constraintCollector.push(formula);
+					var formula = self.generateMqlFormula(this,usedParams)
+					constrainCollector.push(formula);
 				}); 
 				
 			});
-			this.query.metadataQuery.config.mql.constraints = constraintCollector;
+			this.query.metadataQuery.config.mql.constraints = constrainCollector;
+			//Clean Params
+			$.each(this.parameter, function(k,v) {
+				if(_.indexOf(usedParams,v.name) < 0) delete this;
+			});
+			//write Params to mql
+
 		}
 
 	};

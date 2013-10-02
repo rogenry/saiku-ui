@@ -30,7 +30,7 @@ var ReportDesigner = Backbone.View.extend({
         // Bind table rendering to query result event
         _.bindAll(this, "render", "process_data", "show_editor", "prevPage", "nextPage", "firstPage", "lastPage");
         
-        this.workspace.bind('report:result', this.render);
+        this.workspace.bind('query:report', this.render);
                 
        	this.workspace.bind('report:edit', this.show_editor);
 
@@ -85,22 +85,14 @@ var ReportDesigner = Backbone.View.extend({
     	this.json = json.data;
 		var servermodel = json.data.reportModel;
 		this.workspace.serverReportSpec = new reportDesigner.ReportSpecification(servermodel);
-    	var pageSetup = this.workspace.serverReportSpec.pageSetup;
+    	
     	var html = json.data.data;
 
 		//$('.workspace_results').hide();
     	$(this.el).empty();
         $(this.el).html(html).wrapInner('<div class="report_border" />');
-        var correctWidth = $('.report_border table').width() + pageSetup.leftMargin + pageSetup.rightMargin;
-        var correctHeight = $('.report_border table').height() + pageSetup.topMargin + pageSetup.bottomMargin;
-		$('.report_border').width(correctWidth);
-		$('.report_border').height(correctHeight);
-
-        $('.report_border table').css('margin-top', pageSetup.topMargin);
-        $('.report_border table').css('margin-left', pageSetup.leftMargin);
-
-
-
+		$('.report_border').width($('.report_border table').width());
+		
 		$(".pager #curr_page").html(json.data.currentPage + 1);;		
 		$(".pager #off_page").html(json.data.pageCount);
 		
@@ -118,21 +110,12 @@ var ReportDesigner = Backbone.View.extend({
 		this.dragresize.render();
 		
 		var self = this;
-		/*
+		
 		$(this.el).find('.col-header').mouseover(function(event){
 			self.dragresize.summonDragResize(event);});
 
 		$(this.el).find('.col-header').mouseout(function(event){
 			self.dragresize.banishDragResize(event);});			
-*/
-
-$(".report_border > table")
-            .kiketable_colsizable({
-                dragMove : false, 
-                dragProxy : "area",
-                dragCells : ".col-header",
-                })
-
 
         this.workspace.query.trigger('report:render', {
             workspace: this.workspace,
