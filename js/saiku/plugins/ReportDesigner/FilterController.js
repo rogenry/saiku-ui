@@ -1,3 +1,4 @@
+/*
 var reportDesigner = reportDesigner || {};
     reportDesigner.mql = reportDesigner.mql || {};
 var exports = reportDesigner.mql;
@@ -140,3 +141,4 @@ var exports = reportDesigner.mql;
     return FilterController;
 
 })(typeof exports === "undefined" ? window : exports);
+*/

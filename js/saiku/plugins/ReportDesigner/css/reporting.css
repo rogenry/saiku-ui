@@ -732,7 +732,7 @@ div.folderexplorer{
   padding: 0;
 }
 
-.simple_filter_row select.op, .simple_filter_row .col, .simple_filter_row select.agg, .simple_filter_row select.opr {
+.simple_filter_row select.op, .simple_filter_row .col, .simple_filter_row select.agg, .simple_filter_row select.func {
   float: left; 
   width: 95px;
   margin-right:5px;
@@ -748,7 +748,7 @@ div.folderexplorer{
 }
 
 .simple_filter_row div.fr {
-  width:790px;
+  width:900px;
   height: 16px;
   margin-bottom: 5px;
 }

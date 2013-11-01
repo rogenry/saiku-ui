@@ -129,6 +129,7 @@ DATE : [
 				model_id: null,
 				selections: [],
 				constraints: [],
+				parameters:[],
 				orders: [],
 				options: {
 					disable_distinct: "false"
@@ -148,6 +149,10 @@ DATE : [
 		console.log(defaultConfig.mql.domain_type);
 
 	}).prototype = {
+
+		getMql: function(){
+			return this.config.mql;
+		},
 
 		addSelection: function(selection) {
 
@@ -193,6 +198,23 @@ DATE : [
 			}
 
 			this.config.mql.constraints.splice(index, 0, constraint);
+		},
+
+		addParameter: function(parameter, index){
+			var defaultParameter = {
+			};
+			var p;
+			for(p in defaultParameter) {
+				if(typeof(parameter[p]) === "undefined") {
+					parameter[p] = defaultConstraint[p];
+				}
+			}
+			this.config.mql.parameters.splice(index, 0, parameter);
+		},
+
+		removeParameter: function(index){
+			var removedParamter = this.config.mql.parameters.splice(index, 1);
+			return removedParamter[0];
 		},
 
 		setConstraint: function(constraint, index){

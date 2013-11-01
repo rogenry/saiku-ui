@@ -101,7 +101,8 @@ reportDesigner.Workspace = Workspace.extend({
             //$(this.el).find('.dimension_tree').html('').append($(this.mdmodel_list.el));
             var tHtml = $(this.el).find('.dimension_tree');
             tHtml.html('').append($(this.mdmodel_list.el));
-            this.constraintModel = new reportDesigner.ConstraintModel({
+
+            this.filterModel = new reportDesigner.FilterModel({
                 workspace : this,
                 query : this.query
             });
@@ -204,6 +205,10 @@ reportDesigner.Workspace = Workspace.extend({
                 } 
             }
 
+            /*
+            Hier werden Filter aus dem Reportmodel gewonnen und künstlich in die dropzone gezogen
+             */
+
             var filterList = new Array();
             var conditions = this.query.metadataQuery.config.mql.constraints;
             $.each(conditions, function(index, value) {
@@ -235,24 +240,6 @@ reportDesigner.Workspace = Workspace.extend({
                     .css({display: "list-item"}); 
         });
 
-
-
-/*
-            if(parameters) {
-                var $filters = $(this.el).find('.filter ul');
-
-                for(var filters_iter = 0; filters_iter < parameters.length; filters_iter++) {
-                    var filter = parameters[filters_iter];
-                    var name = filter.name;
-
-                    var $logicalColumn = $(this.el).find('.category_tree').find('a[title="' + name + '"]').parent();
-
-                    var $clone = $logicalColumn.clone().addClass('d_dimension').appendTo($filters);
-
-                    $("<span />").addClass('sprite').prependTo($clone);
-                }
-            }
-*/
            this.query.workspace = this;
            this.query.page = null;
            this.query.run();

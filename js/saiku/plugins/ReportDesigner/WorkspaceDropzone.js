@@ -268,14 +268,14 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             }
         }else if(target  == 'FILTERS'){
             console.log("edit Filter");
-            //var constraint = this.workspace.query.metadataQuery.getConstraint(index);
-            //var filterModel = reportDesigner.mql.FilterController.formulaConstraintToFilterModel(constraint, this.workspace.query);
-            //filterModel.index = index;
 
-            (new SimpleFilterDialog({
-                key : key,
-                workspace : this.workspace
+            (new FilterDialog({
+                workspace: this.workspace,
+                key: key,
+                action: "edit",
+                index: index
             })).open();
+
       }
 
         // Prevent default action

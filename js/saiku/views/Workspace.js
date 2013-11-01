@@ -54,7 +54,7 @@ var Workspace = Backbone.View.extend({
         // Generate table
         this.table = new Table({ workspace: this });
         
-        this.chart = new Chart({ workspace: this });
+//        this.chart = new Chart({ workspace: this });
         // Pull query from args
         if (args && args.query) {
             this.query = args.query;
@@ -117,7 +117,7 @@ var Workspace = Backbone.View.extend({
         $(this.el).find('.workspace_results')
             .append($(this.table.el));
         
-        this.chart.render_view();
+//      this.chart.render_view();
         // Adjust tab when selected
         this.tab.bind('tab:select', this.adjust);
         $(window).resize(this.adjust);

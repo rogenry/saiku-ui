@@ -6,7 +6,7 @@ var reportDesigner = reportDesigner || {};
 	(ConstraintModel = function(args) {
 		
 		_.extend(this, args);
-		_.bindAll(this, "getMql", "parseMql","parse", "getConstraints", "save", "setParameter", "getParameter", "deleteParameter");
+		_.bindAll(this, "parseMqlConstraints","parse", "getConstraints", "save", "setParameter", "getParameter", "deleteParameter");
 		this.workspace = args.workspace;
 		this.query = args.query;
 		
@@ -14,25 +14,24 @@ var reportDesigner = reportDesigner || {};
 		this.modelId =  null;
 	    this.domainType = null;
 	    this.domainId = null;
-		this.parameter = {};
+		this.parameters = {};
 
 		this._frml = {
 			condition: "",
 			operator: ""
 		};
 
-		this.parseMql();		
+		this.parseMqlConstraints();		
 		
 	}).prototype = {
 
-		getMql: function(query) {
-			return this.query.metadataQuery.config.mql;
-		},
-
-		parseMql: function() {
+		/*
+		* Parses the constraints of an MQL-Query into this view-model
+		*/
+		parseMqlConstraints: function() {
 			var that = this;
 			var constraints = {};
-			var mql = this.getMql(this.query);
+			var mql = this.query.metadataQuery.getMql();
 			this.modelId =  mql.model_id;
 	    	this.domainType = mql.domain_type;
 	    	this.domainId = mql.domain_id;
@@ -47,8 +46,22 @@ var reportDesigner = reportDesigner || {};
 					that.constraints[infos.cName].push(subConstraint)
 				}
 			});
+
+			//search the <parameters> to find default values
+			$.each(mql.parameters, function(k,parameter) {
+				for (var i = infos.length - 1; i >= 0; i--) {
+					if(infos[i].param==parameter.name){
+						infos[i].value = parameter.defaultValue;
+					}
+				};
+				
+			});
 		},
 
+		/*
+		* Internal parser rules for open-forumla expressions in an MQL-Query. 
+		* This one is more specialized and simple than PHOMP
+		*/
 		parse: function(c) {
 			var cInfo = {
 				category: null,
@@ -58,7 +71,6 @@ var reportDesigner = reportDesigner || {};
 				aggregation : null,
 				value : null,
 				param : null,
-
 			};
 			//c.condition = 'IN([BT_CUSTOMERS.BC_CUSTOMERS_CUSTOMERNAME];"Adam Smith";"Brian Jones")';
 
@@ -100,6 +112,14 @@ var reportDesigner = reportDesigner || {};
 				cInfo.value = result[3];
 			}
 			
+			//Check for param [param:PARAM_NAME] in value
+			var searchParam = new RegExp('\\[param:(.*?)\\]',["i"]);
+			var result = searchParam.exec(cInfo.value);
+			if(result) {
+				cInfo.value = null; //This has to be the default value if it is a parameter. we need to find that in <parameter>
+				cInfo.param = result[1];
+			}
+
 			var collectedInfo = {
 				cInfo : cInfo,
 				cName : columnInfos[1]					
@@ -107,10 +127,17 @@ var reportDesigner = reportDesigner || {};
 			return collectedInfo;
 		},
 
+		/*
+		 * Get all constraints for a given metadata column
+		 */
+		 //TODO: Rename to getAllFiltersForColumn
 		getConstraints: function(column) {	
 			return this.constraints[column];
 		},
 
+		/*
+		 *
+		 */
 		generateMqlFormula: function(constraint,usedParams) {
 			var f = {}; 
 			_.extend(f,this._frml);
@@ -132,7 +159,11 @@ var reportDesigner = reportDesigner || {};
 					p2  = combined; 
 				}
 				else {
-				p2 = '"'+constraint.value+'"';
+					if(typeof constraint.param !== "undefined"){					
+						p2 = constraint.value;	//Parameters do not need ""
+					}else{
+						p2 = '"'+constraint.value+'"';	
+					}
 				}
 				f.condition = p0 +"("+ p1 +";"+ p2 +")";
 			}
@@ -149,44 +180,72 @@ var reportDesigner = reportDesigner || {};
 		return f;
 		},
 
-		setParameter: function(paramName,paramLabel,defaultVal,column) {
-			var parameter = {
+		/*
+		*/
+		//TODO: this is rather add than set
+		setParameter: function(paramName,paramLabel,defaultVal,mqlQueryString, type) {
+
+			var dataSource = null;
+
+			if(typeof mqlQueryString !== "undefined"){
+				dataSource = new reportDesigner.Datasource({
+					id: "FILTER_" + paramName,
+					type: DatasourceType.CDA,
+					queryString: mqlQueryString
+					}); 
+			}
+
+			var parameter = new reportDesigner.Parameter({
 				name : paramName,
 				label : paramLabel,
-				values : defaultVal,
-				column : column
-			};
-			this.parameter[paramName] = parameter;
+				dataSource: dataSource,
+				defaultValue: defaultVal,
+				type: type
+			});
+
+			this.parameters[paramName] = parameter;
 			return true;
 		},
 
+		//Wer benutzt das?
 		getParameter: function(paramName) {
-			return this.parameter[paramName];
+			return this.parameters[paramName];
 		},
 
 		deleteParameter: function(paramName) {
-			delete this.parameter[paramName];	
+			delete this.parameters[paramName];	
 			return true;
 		},
 
+		/*
+		* This renders the view-model into the reportmodel and the querymodel
+		*/
 		save: function() {
 			var self = this;
 			var usedParams = new Array();
-			var constrainCollector = new Array();
+			var constraintCollector = new Array();
 			$.each(this.constraints, function() {
 				$.each(this,function(){
 					var formula = self.generateMqlFormula(this,usedParams)
-					constrainCollector.push(formula);
+					constraintCollector.push(formula);
 				}); 
 				
 			});
-			this.query.metadataQuery.config.mql.constraints = constrainCollector;
+			this.query.metadataQuery.config.mql.constraints = constraintCollector;
 			//Clean Params
-			$.each(this.parameter, function(k,v) {
-				if(_.indexOf(usedParams,v.name) < 0) delete this;
+			$.each(this.parameters, function(k,v) {
+				if(_.indexOf(usedParams,v.name) < 0){
+					delete this;
+				}else{
+					var param = {
+						name: v.name,
+						type: v.type,
+						defaultValue: v.defaultValue
+					}
+					self.query.metadataQuery.addParameter(param, _.indexOf(usedParams,v.name));
+					self.query.reportSpec.addParameter(v);
+				}
 			});
-			//write Params to mql
-
 		}
 
 	};

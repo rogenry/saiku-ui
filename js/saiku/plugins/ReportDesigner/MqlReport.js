@@ -148,6 +148,8 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 			return;
 		}
 
+        //render the filtermodel into the report
+        this.workspace.filterModel.save();
 
 		var mqlQueryString = this.metadataQuery.toXml();
 
@@ -301,12 +303,12 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 
 		case "FILTERS":
 			console.log("adding Filter");
-			
 
-			(new SimpleFilterDialog({
+			(new FilterDialog({
 				workspace: this.workspace,
 				key: dimension,
-				action: "new"
+				action: "new",
+                index: index
 			})).open();
 
 			return false;
@@ -326,14 +328,7 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 			this.metadataQuery.removeSelection(indexFrom);
 			break;
 		case "FILTERS":
-			var constraintModel = this.workspace.constraintModel;
-			var dimInfo = dimension.split("/");
-			delete constraintModel.constraints[dimInfo[3]];
-			constraintModel.save();
-			//Remove the filter from mql-conditions using index;
-			//If mql contains a param, also remove that param from mql
-			//Remove the param from the reportmodel
-			//If the param has a query, remove that query from datasource
+            this.workspace.filterModel.removeFilter(indexFrom);
 			break;
 		default:
 			this.reportSpec.removeGroup(indexFrom);

@@ -112,7 +112,7 @@ var SimpleFilterDialog = Modal.extend({
 
             this.build_filterquery();
 
-            var mqlQueryString = this.metadataQuery.toXml();
+            this.mqlQueryString = this.metadataQuery.toXml();
 
             this.filterResult = new FilterResult();
 
@@ -125,7 +125,7 @@ var SimpleFilterDialog = Modal.extend({
                     return false;
                 },
                 data: {
-                    mql: mqlQueryString
+                    mql: this.mqlQueryString
                 }
             });
 
@@ -210,8 +210,9 @@ var SimpleFilterDialog = Modal.extend({
             
             var selected_values_collected = new Array();
             $.each(this.filter, function(v,k) {
-                if(k.value!=null){
-                    var values = k.value.split(",");
+                var value = (typeof k.param !== "undefined")? k.defaultValue : k.value;
+                if(value!=null){
+                    var values = value.split(",");
                     $.each(values, function(w,l) {
                         selected_values_collected.push(l);
                     });
@@ -324,9 +325,17 @@ var SimpleFilterDialog = Modal.extend({
                     var parameter_label =  $(this).find('.parameter_label').val();
                     model.param = parameter_name;
                     model.value = "[param:"+parameter_name+"]";
-                    that.constraintModel.setParameter(parameter_name,parameter_label,$(this).find("input[name=value]").val(),that.columnMeta.id);
+                    model.defaultValue = $(this).find("input[name=value]").val();
+                    that.constraintModel.setParameter(
+                        parameter_name,
+                        parameter_label,
+                        $(this).find("input[name=value]").val(),
+                        that.mqlQueryString,
+                        that.columnMeta.type
+                    );
                 } else { 
                     model.value =  $(this).find("input[name=value]").val();
+                    model.defaultValue = $(this).find("input[name=value]").val();
                 }
                 filterRowModels.push(model);
             });
