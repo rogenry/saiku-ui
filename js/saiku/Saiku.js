@@ -48,7 +48,7 @@ var Saiku = {
      */
     ui: {
         block: function(message) {
-            $('.processing_message').text(message);
+            $('.processing_message').html(message);
             $('.processing_message').removeClass("i18n_translated").addClass("i18n");
             Saiku.i18n.translate();
 
@@ -57,6 +57,9 @@ var Saiku = {
         
         unblock: function() {
             $('.processing,.processing_container, .blockOverlay').hide();
+
+            // Fix For Internet Explorer 10 UIBlock issue
+            $('.blockUI').fadeOut('slow');
         }
     }
 };

@@ -18,11 +18,12 @@
  * Change settings here
  */
 var Settings = {
-    VERSION: "Saiku 2.5-SNAPSHOT",
-    BIPLUGIN: true,
+    VERSION: "Saiku 2.6-SNAPSHOT",
+    BIPLUGIN: false,
+    BIPLUGIN5: false,
     BASE_URL: "",
     TOMCAT_WEBAPP: "/saiku",
-    REST_MOUNT_POINT: "/rest/saiku-reporting/",
+    REST_MOUNT_POINT: "/rest/saiku/",
     DIMENSION_PREFETCH: true,
     ERROR_LOGGING: false,
     // number of erroneous ajax calls in a row before UI cant recover
@@ -43,9 +44,12 @@ var Settings = {
     // 0 - no limit
     RESULT_LIMIT: 0,
     MEMBERS_FROM_RESULT: true,
+    ALLOW_IMPORT_EXPORT: false,
     PLUGINS: [
         "Chart"
     ],
+    DEFAULT_VIEW_STATE: 'view', // could be 'edit' as well
+    DEMO: false,
     TELEMETRY_SERVER: 'http://telemetry.analytical-labs.com:7000',
     LOCALSTORAGE_EXPIRATION: 10 * 60 * 60 * 1000 /* 10 hours, in ms */
 };
@@ -73,6 +77,16 @@ Settings.GET = function () {
 }();
 _.extend(Settings, Settings.GET);
 
+Settings.PARAMS = (function() {
+    var p = {};
+    for (var key in Settings) {
+        if (key.match("^PARAM")=="PARAM") {
+            p[key] = Settings[key];
+        }
+    }
+    return p;
+}());
+
 Settings.REST_URL = Settings.BASE_URL
     + Settings.TOMCAT_WEBAPP 
     + Settings.REST_MOUNT_POINT;
@@ -83,6 +97,17 @@ if (Settings.MODE == "table") {
     $('body, html').css('min-height',0);
     $('body, html').css('min-width',0);
 
+}
+if (Settings.BIPLUGIN5) {
+    Settings.BIPLUGIN = true;
+}
+
+Settings.INITIAL_QUERY = false;
+if (document.location.hash) {
+    var hash = document.location.hash;
+    if (hash.length > 11 && hash.substring(1, 11) == "query/open") {
+        Settings.INITIAL_QUERY = true;
+    }
 }
 
 
@@ -139,15 +164,18 @@ if ($.blockUI) {
 if (window.location.hostname && (window.location.hostname == "dev.analytical-labs.com" || window.location.hostname == "demo.analytical-labs.com" )) {
     Settings.USERNAME = "admin";
     Settings.PASSWORD = "admin";
+    Settings.DEMO = true;
 }
 
 var isIE = (function(){
-    var undef, v = 3, div = document.createElement('div');
+    var undef, v = 3; 
+    
+    var dav = navigator.appVersion;
+    
+    if(dav.indexOf('MSIE') != -1) {
+        v  = parseFloat(dav.split('MSIE ')[1]);
+        return v> 4 ? v : false;
+    }
+    return false;
 
-    while (
-        div.innerHTML = '<!--[if gt IE '+(++v)+']><i></i><![endif]-->',
-        div.getElementsByTagName('i')[0]
-    );
-
-    return v> 4 ? v : false;
 }());

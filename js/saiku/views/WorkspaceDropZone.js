@@ -102,7 +102,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                     + "/" + query.get('cube');
 
                 var items = {};
-                var measures = Saiku.session.sessionworkspace.measures[cube].get('data');
+                var measures = Saiku.session.sessionworkspace.cube[cube].get('data').measures;
 
                 var func, n, sortliteral, filterCondition, sortOrder, sortOrderLiteral;
                 var sortHl, topHl, filterHl;
@@ -150,7 +150,7 @@ var WorkspaceDropZone = Backbone.View.extend({
                     for (key in items) {
                         ret[ (fun + '###SEPARATOR###'+ key) ] = _.clone(items[key]);
                         ret[ (fun + '###SEPARATOR###' + key) ].fun = fun;
-                        if (fun == func && sortliteral == key && items[key].payload["n"] == n) {
+                        if (fun == func && sortliteral == key && items[key].payload["n"] == n) {
                             topHl = fun + "Quick";
                             ret[ (fun + '###SEPARATOR###' + key) ].name =
                                     "<b>" + items[key].name + "</b>";
@@ -499,10 +499,12 @@ var WorkspaceDropZone = Backbone.View.extend({
         // Make the element and its parent bold
         var original_href = ui.item.find('a').attr('href');
         var $original = $(this.workspace.el).find('.sidebar')
-            .find('a[href="' + original_href + '"]').parent('li');
+            .find('a[href="' + original_href + '"]').parent('li').first();
         $original
-            .css({fontWeight: "bold"})
-            .draggable('disable');
+            .css({fontWeight: "bold"});
+
+        $original.draggable('disable');
+
         $original.parents('.parent_dimension')
             .find('.folder_collapsed')
             .css({fontWeight: "bold"});
@@ -677,7 +679,7 @@ var WorkspaceDropZone = Backbone.View.extend({
         var $source = ui ? ui.draggable : $(event.target).parent();
         var original_href = $source.find('a').attr('href');
         var $original = $(this.workspace.el).find('.sidebar')
-            .find('a[href="' + original_href + '"]').parent('li');
+            .find('a[href="' + original_href + '"]').parent('li').first();
         $original
             .draggable('enable')
             .css({ fontWeight: 'normal' });
@@ -700,7 +702,8 @@ var WorkspaceDropZone = Backbone.View.extend({
         
         var url = "/axis/" + target + "/dimension/" + dimension;
         this.workspace.query.action.del(url, {
-            success: this.workspace.query.run
+            success: this.workspace.query.run,
+            dataType: "text"
         });
         
         // Remove element

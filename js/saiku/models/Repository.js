@@ -39,6 +39,14 @@ var RepositoryAclObject = Backbone.Model.extend( {
     }
 } );
 
+var RepositoryZipExport = Backbone.Model.extend( {
+    url: function( ) {
+        var segment = Settings.BIPLUGIN ? 
+            "/pentahorepository2/zip" : "/repository2/zip";
+        return encodeURI(Saiku.session.username) + segment;
+    }
+} );
+
 var SavedQuery = Backbone.Model.extend({
 
     parse: function(response) {
@@ -84,16 +92,20 @@ var Repository = Backbone.Collection.extend({
     model: SavedQuery,
     
     initialize: function(args, options) {
-        this.dialog = options.dialog;
+        if (options && options.dialog) {
+            this.dialog = options.dialog;
+        }
     },
     
     parse: function(response) {
-        this.dialog.populate(response);
+        if (this.dialog) {
+            this.dialog.populate(response);
+        }
     },
     
     url: function() {
         var segment = Settings.BIPLUGIN ? 
-            "/pentahorepository2/?type=saiku" : "/repository2/?type=saiku";
+            "/pentahorepository2?type=saiku" : "/repository2?type=saiku";
         return encodeURI(Saiku.session.username + segment);
     }
 });
