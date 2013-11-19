@@ -20,10 +20,10 @@
 var Settings = {
     VERSION: "Saiku 2.6-SNAPSHOT",
     BIPLUGIN: false,
-    BIPLUGIN5: false,
+    BIPLUGIN5: true,
     BASE_URL: "",
     TOMCAT_WEBAPP: "/saiku",
-    REST_MOUNT_POINT: "/rest/saiku/",
+    REST_MOUNT_POINT: "/rest/saiku-reporting/",
     DIMENSION_PREFETCH: true,
     ERROR_LOGGING: false,
     // number of erroneous ajax calls in a row before UI cant recover
