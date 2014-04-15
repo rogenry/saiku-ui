@@ -85,3 +85,5 @@ if (! Settings.BIPLUGIN) {
         Saiku.toolbar = new Toolbar();
     });
 }
+
+

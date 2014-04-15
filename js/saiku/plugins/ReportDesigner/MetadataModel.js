@@ -38,10 +38,13 @@ var MetadataModel = Backbone.Model.extend({
                 
         return response;
     },
+
+    getColumnByPath: function(key){
+        var columnInfo = key.split("/");
+        return this.getColumnById(columnInfo[1], columnInfo[3]);
+    },
 	
 	getColumnById: function(categoryId, columnId){
-
-//???		var categories = this.attributes.categories;
 		var categories = this.attributes.data.categories;
 
 		for (var i = 0; i < categories.length; i++) {

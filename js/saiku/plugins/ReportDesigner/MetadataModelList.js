@@ -74,7 +74,7 @@ var MdModelList = Backbone.View.extend({
         $(this.el).find('.measure,.dimension').parent('li').draggable({
             cancel: '.not-draggable, .hierarchy',
             connectToSortable: $(this.workspace.el)
-                .find('.measures > ul, .relgroups > ul, .colgroups > ul, .rowgroups > ul, .filters > ul'),
+                .find('.columns > ul, .measures > ul, .relgroups > ul, .colgroups > ul, .rowgroups > ul, .filters > ul'),
             helper: 'clone',
             opacity: 0.60,
             tolerance: 'pointer',

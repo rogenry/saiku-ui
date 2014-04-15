@@ -35,10 +35,37 @@ var SessionWorkspace = Backbone.Model.extend({
             } else if (!localStorage.getItem('saiku-version') || (localStorage.getItem('saiku-version') !== Settings.VERSION) ) {
                 localStorage.clear();
             }
-        }        
+        }  
+
+
+
+/*
+ * This is absolutely the wrong place for the following
+ */
+
+      //Create a layout class for modals
+      var Layout = Backbone.Marionette.Layout.extend({
+        template: _.template($('#modals-template').html()),
+        regions: {
+          modals: {
+            selector: '.bb-modal-container',
+            regionType: Backbone.Marionette.Modals
+          }
+        }
+      });
+
+      // // Render the layout
+      window.ModalLayout = new Layout();
+      $('body').append(ModalLayout.render().el);
+/*
+ * 
+ */
+
+
+
         Saiku.ui.block("Loading datasources....");
         this.fetch({success:this.process_datasources},{});
-        
+
     },
 
     refresh: function() {

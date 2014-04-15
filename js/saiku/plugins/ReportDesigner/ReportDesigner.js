@@ -30,27 +30,16 @@ var ReportDesigner = Backbone.View.extend({
         // Bind table rendering to query result event
         _.bindAll(this, "render", "process_data", "show_editor", "prevPage", "nextPage", "firstPage", "lastPage");
         
-        this.workspace.bind('report:result', this.render);
-                
+        this.workspace.bind('report:result', this.render);              
        	this.workspace.bind('report:edit', this.show_editor);
-
        	this.dragresize = new DragResize({workspace: this.workspace, el: $(this.el)});
         
     },
-    
-    template: function() {
-       return _.template($("#template-report-workspace").html())();  
-    },
-    
-    
+
     show_editor: function(event) {
 
-        //var splits = event.id.split('-');
- 		//var ele = splits[2] + '-' + splits[3] + '-' + splits[4];
-
-		//this.workspace.query.lastEditElement = event.id;
 		var rep = this;
-		this.workspace.query.lastEditElement = []; //new Array
+		this.workspace.query.lastEditElement = [];
 		var adhocs = $('.adhoc-highlight').toArray();
 		var filtered = [];
 		$.each(adhocs, function(){
@@ -69,7 +58,6 @@ var ReportDesigner = Backbone.View.extend({
     render: function(json) {
         var check = $(this.workspace.el).find('.workspace_report');
         $(this.workspace.el).find('.workspace_report').append($(this.el));
-        //$(this.workspace.el).find('.workspace_results').hide();
 
         // Check to see if there is data
         if (json.data && json.data.data.length === 0) {
@@ -126,7 +114,7 @@ var ReportDesigner = Backbone.View.extend({
 			self.dragresize.banishDragResize(event);});			
 */
 
-$(".report_border > table")
+        $(".report_border > table")
             .kiketable_colsizable({
                 dragMove : false, 
                 dragProxy : "area",

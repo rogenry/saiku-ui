@@ -19,17 +19,16 @@
 /**
  * A filter row represents aggregation/column/operator/value(s)
  */
-var FilterRow = Backbone.View.extend({
+var FilterRow = Backbone.Epoxy.View.extend({
+    
     className: "filter_row",
 
-    events: {
-        //"change input[type=select] .col": "onColumnSelect"
-    },
-    
+    bindings: "data-bind"
+
     initialize: function(args) {
         this.el = args.el;
         this.workspace = args.workspace;
-        this.filter = args.filter;
+        this.model = args.model;
         this.columnMeta = args.filter.columnMeta;
         this.operatorType = args.operatorType;
         this.index = args.index;
@@ -45,7 +44,8 @@ var FilterRow = Backbone.View.extend({
                 availableComparators: AvailableComparators[this.columnMeta.type],
                 availableAggTypes: this.columnMeta.aggTypes,
                 availableOpr: AvailableOperators[this.operatorType],
-                column:  this.columnMeta.name
+                //column:  this.columnMeta.name,
+                availableWidgets: ['textbox','datepicker','single-select','multiselect']
             };
 
             //hier müssen noch available comparators rein, entsprechend columnMeta.type
@@ -56,16 +56,17 @@ var FilterRow = Backbone.View.extend({
 
             if(this.columnMeta.type == DataType.DATE){
                 $(this.el).find(".value").datepicker({
+                showOn: "button",
                 dateFormat: "yy-mm-dd",
                 changeMonth: true,
                 changeYear: true,
-                //buttonImage: "images/calendar.gif",
-                //buttonImageOnly: true,
+                buttonImage: "../../ReportDesigner/images/calendar.png",
+                buttonImageOnly: true,
                 //defaultDate: selectedDateFrom,
                 //minDate: startDate,
                 //maxDate: endDate,
-                onSelect: function(date, input){
-                }});
+                onSelect: function(date, input){}
+               });
             }
 
             var $itsRow = $(this.el).find('.filterrow[filterIndex = '+this.index+']');

@@ -42,7 +42,7 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
         this._super("initialize", arguments);
 
          _.bindAll(this, "call", "changed_rowlimit", "changed_distinct", "reflect_properties", "run_query", 
-            "toggle_report", "calculated_column");
+            "toggle_report", "toggle_layout", "calculated_column");
 
         this.workspace.bind('report:result', this.activate_buttons);
 
@@ -80,6 +80,10 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
 		this.workspace.trigger('FSM:EToggle');
     },
 
+    toggle_layout: function(event) {
+        this.workspace.trigger('FSM:EToggle');
+    },
+
     reflect_properties: function() {
         var properties = this.workspace.query.properties ?
             this.workspace.query.properties.properties : Settings.QUERY_PROPERTIES;
@@ -98,37 +102,7 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
         // Toggle state of button
         $(event.target).toggleClass('on');
     },
- 
-/*  TODO: Can we merge that somehow?  
-    toggle_fields: function(event) {
 
-		var $fields = $(this.workspace.el).find('.workspace_fields')
-
-        $fields.toggle();
-
-        var fieldsHeight = 0;
-
-        if($fields.is(":visible")){
-        	fieldsHeight = $fields.height() + 112; 	
-        }
-     
-      	var height = $(document).height() - $("#header").height() -
-			$(this.el).find('.workspace-report-toolbar').height() -
-			$(this.el).find('.workspace_toolbar').height() - fieldsHeight - 100;
-
-		$(this.workspace.el).find('.report_inner').css({
-			height: height
-		});
-
-    },
- */
-
-   setup_report: function(event) {
-   	    (new ReportSetupModal({
-            workspace: this.workspace
-        })).open();     
-    },
-   
    add_union: function(event) {
         alert("Union Queries are not yet implemented, sorry!");
     },
@@ -168,24 +142,14 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
         .appendTo('body').submit().remove();
     },
 
-/*
-    export_cda: function(event) {
-        (new ExportFileModal({
-            workspace: this.workspace,
-            extension: "CDA"
-        })).open();   
-    },    
-
-    export_prpt: function(event) {
-        (new ExportPrptModal({
-            workspace: this.workspace,
-            extension: "PRPT"
-        })).open();   
-    },
-*/
+    // export_cda: function(event) {
+    //     (new ExportFileModal({
+    //         workspace: this.workspace,
+    //         extension: "CDA"
+    //     })).open();   
+    // },    
 
     show_sql: function(event) {
-
 
         var sql = new SQLString();
         sql.save(null, 
@@ -193,15 +157,12 @@ reportDesigner.WorkspaceToolbar = WorkspaceToolbar.extend({
                 error: function(model, response) {
                 },
                 success: function(model, response) {
-                    console.log("OK");
                     (new SQLModal({ sql: response.sql})).render().open();
                     return false;
                 },
                 contentType:  'application/json',
                 data: this.workspace.query.reportSpec.dataSource.queryString
             });
-
-            //(new SQLModal({ sql: sql})).render().open();
 
     }
 

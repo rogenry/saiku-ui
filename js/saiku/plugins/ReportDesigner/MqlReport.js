@@ -44,14 +44,15 @@ reportDesigner.MqlReport = Backbone.Model.extend({
         this.result = new Result({ limit: Settings.RESULT_LIMIT }, { query: this });
 		this.reportresult = new ReportResult({}, {query: this});
 		this.inplace = new InplaceEdit({}, {query: this});
+		this.filters = new FilterItemCollection();
 
-		this.reportPerspective = true;
+		this.resultMode = "report";
 		this.selectedModel = Saiku.session.sessionworkspace.mdModels[this.attributes.domainId + "/" + this.attributes.modelId];
 		this.selectedItems = {}; //Store metadata descriptions of selected items
 
         // these are the new client models
         this.reportSpec = new reportDesigner.ReportSpecification({
-            reportName: "myreport"
+            reportName: "Unnamed"
         });
         this.serverReportSpec = null;
         this.metadataQuery = new reportDesigner.mql.Query({
@@ -149,7 +150,7 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 		}
 
         //render the filtermodel into the report
-        this.workspace.filterModel.save();
+        //this.filterModel.save(); //this is work in progress, we need a FilterHelper here
 
 		var mqlQueryString = this.metadataQuery.toXml();
 
@@ -159,20 +160,21 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 			queryString: mqlQueryString
 		});
 
-		if(!that.reportPerspective) {
+		if(this.resultMode === 'dataset') {
 			Saiku.ui.block("Rendering Table");
 			that.result.fetch({
 				error: function(model, response) {
 					that.error = new ClientError({
 						query: self,
 						message: response.responseText
-					});
-					that.workspace.reset_canvas();
+					}).render();
+					//that.workspace.reset_canvas();
 					that.workspace.trigger('FSM:ETableError');
 					Saiku.ui.unblock();
 				}
 			});
-		} else {
+		} 
+		else if(this.resultMode === 'report') {
 			Saiku.ui.block("Rendering Report");
 			that.reportresult.save( {  }, 
 			{
@@ -180,8 +182,8 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 					that.error = new ClientError({
 						query: self,
 						message: response.responseText
-					});
-					that.workspace.reset_canvas();
+					}).render();
+					//that.workspace.reset_canvas();
 					that.workspace.trigger('FSM:EReportError');
 					Saiku.ui.unblock();
 				},
@@ -197,142 +199,97 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 	},
 
     move_dimension: function(dimension, target, indexFrom, index, uuid) {
+
 		$(this.workspace.el).find('.run').removeClass('disabled_toolbar');
 		$(this.workspace.el).find('.save').removeClass('disabled_toolbar');
 
-		var mc;
-		if(indexFrom === undefined){
-			var fieldInfo = dimension.split('/');
-			var categoryId = fieldInfo[1];
-			var columnId = fieldInfo[3];
-			mc = this.selectedModel.getColumnById(categoryId, columnId);
-			this.selectedItems[uuid] = mc;
-		}else{
-			mc = this.selectedItems[uuid];
+		var columnMeta = this.selectedModel.getColumnByPath(dimension);
+		var spec = this.reportSpec;
+		//it is a move
+		if(indexFrom){
+			switch(target) {
+			case "COLUMNS":
+			case "MEASURES": 
+				spec.addColumn(spec.removeColumn(indexFrom), index);
+				break;
+			case "REL_GROUPS": 
+			case "ROW_GROUPS":
+			case "COL_GROUPS": 
+				spec.addGroup(spec.removeGroup(indexFrom), index);
+				break;
+			case "FILTERS": //TODO: define what a filter move would be like
+			}
 		}
-		//if it doesnt have a metadata it must be a calculated column
-		if(mc === undefined){
-			if(indexFrom) {
-				field = this.reportSpec.removeColumn(indexFrom);
+		//it is an initial drop
+		else{
+			//create a selection for the metadata query
+			var mqlSelection = {
+			table: columnMeta.category,
+			column: columnMeta.id,
+			aggregation: columnMeta.defaultAggType}
+
+			var agg, gt;
+
+			switch(target) {
+			case "COLUMNS":
+				agg = AggregationFunction.NONE;
+			case "MEASURES":
+				agg = "GROUPSUM"; //TODO: need to check which aggregations are allowed in crosstabs
+				var field = new reportDesigner.FieldDefinition({
+					fieldId: columnMeta.id,
+					fieldName: columnMeta.name,
+					fieldDescription: columnMeta.description,
+					aggregationFunction: agg
+				});
 				this.reportSpec.addColumn(field, index);
+				break;
+			case "REL_GROUPS":
+				gt = GroupType.RELATIONAL
+			case "ROW_GROUPS":
+				gt = GroupType.CT_ROW
+			case "COL_GROUPS":
+				gt = GroupType.CT_ROW
+				var group = new reportDesigner.GroupDefinition({
+					fieldId: columnMeta.id,
+					groupName: columnMeta.id,
+					type: gt,
+					displayName: columnMeta.name,
+					printSummary: true
+				});
+				this.reportSpec.addColumn(field, index);
+				break;
+			case "FILTERS":
+				var filter = new FilterItemModel({
+					category: columnMeta.category,
+        			columnId: columnMeta.id,
+        			columnName: columnMeta.name
+        		});
+				this.filters.add(filter, {at: index});  
+				var dialog = new FilterDialog({filters:this.filters});
+				dialog.render().open();
+				return false;
 			}
+
+			this.metadataQuery.addSelection(mqlSelection); //Do we need to reorder columns within the selection
 			this.run();
-		}
-
-
-/*
-		var fieldInfo = dimension.split('/');
-		var categoryId = fieldInfo[1];
-		var columnId = fieldInfo[3];
-
-		if(categoryId == 'CALCULATED'){
-			if(indexFrom) {
-				field = this.workspace.reportSpec.removeColumn(indexFrom);
-				this.workspace.reportSpec.addColumn(field, index);
-			}
-			this.run();
-		}
-*/
-
-		var selection = {
-			table: mc.category,
-			column: mc.id,
-			aggregation: mc.defaultAggType
 		};
-
-		switch(target) {
-		case "MEASURES":
-			var agg = "NONE";
-			if(this.workspace.mode === 'crosstab') agg = "GROUPSUM"; //TODO: what should be the default here?
-			var field = new reportDesigner.FieldDefinition({
-				fieldId: mc.id,
-				fieldName: mc.name,
-				fieldDescription: mc.description,
-				aggregationFunction: agg
-			});
-
-			if(indexFrom) {
-				field = this.reportSpec.removeColumn(indexFrom);
-			}
-			this.reportSpec.addColumn(field, index);
-			break;
-
-		case "REL_GROUPS":
-			var group = new reportDesigner.GroupDefinition({
-				fieldId: mc.id,
-				groupName: mc.id,
-				type: GroupType.RELATIONAL,
-				displayName: mc.name,
-				printSummary: true
-			});
-			if(indexFrom) {
-				group = this.reportSpec.removeGroup(indexFrom);
-			}
-			this.reportSpec.addGroup(group, index);
-			break;
-
-		case "ROW_GROUPS":
-			var group = new reportDesigner.GroupDefinition({
-				fieldId: mc.id,
-				groupName: mc.id,
-				type: GroupType.CT_ROW,
-				displayName: mc.name,
-				printSummary: true
-			});
-
-			if(indexFrom) {
-				group = this.reportSpec.removeGroup(indexFrom);
-			}
-			this.reportSpec.addGroup(group, index);
-			break;
-
-		case "COL_GROUPS":
-			var group = new reportDesigner.GroupDefinition({
-				fieldId: mc.id,
-				groupName: mc.id,
-				type: GroupType.CT_COLUMN,
-				displayName: mc.name,
-				printSummary: true
-			});
-
-			if(indexFrom) {
-				group = this.reportSpec.removeGroup(indexFrom);
-			}
-			this.reportSpec.addGroup(group, index);
-			break;
-
-		case "FILTERS":
-			console.log("adding Filter");
-
-			(new FilterDialog({
-				workspace: this.workspace,
-				key: dimension,
-				action: "new",
-                index: index
-			})).open();
-
-			return false;
-
-		}
-
-		this.metadataQuery.addSelection(selection);
-
-		this.run();
 
 	},
 
 	remove_dimension: function(target, indexFrom, dimension) {
 		switch(target) {
+		case "COLUMNS":
 		case "MEASURES":
 			this.reportSpec.removeColumn(indexFrom);
 			this.metadataQuery.removeSelection(indexFrom);
 			break;
-		case "FILTERS":
-            this.workspace.filterModel.removeFilter(indexFrom);
-			break;
-		default:
+		case "REL_GROUPS":
+		case "ROW_GROUPS":
+		case "COL_GROUPS":
 			this.reportSpec.removeGroup(indexFrom);
 			break;
+		case "FILTERS":
+			this.filters.remove(filters.at(indexFrom));		
 		}
 		this.run();
 	},

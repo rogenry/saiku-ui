@@ -1,12 +1,47 @@
-    </script>
-        <script type="text/x-jquery-tmpl" id="template-reportdesigner-workspace-toolbar">
+  <!-- Region container -->
+  <script type="text/template" id="modals-template">
+    <div class="bb-modal-container"></div>
+  </script>
+
+  <!-- Modal template -->
+  <script type="text/template" id="modal-template">
+    <div class="bbm-modal__topbar">
+      <h3 class="bbm-modal__title">Modal</h3>
+    </div>
+    <div class="bbm-modal__section">
+    </div>
+    <div class="bbm-modal__bottombar">
+      <a href="#" class="bbm-button">OK</a>
+    </div>
+  </script>
+
+ <!-- Modal templates -->
+  <script type="text/template" id="modal-template1">
+    <div class="bbm-modal__topbar">
+      <h3 class="bbm-modal__title">Stacked modals with Backbone.Marionette</h3>
+    </div>
+    <div class="bbm-modal__section">
+      <p>Go ahead and open the <a href="#" class="open-2">second modal</a>.</p>
+    </div>
+    <div class="bbm-modal__bottombar">
+      <a href="#" class="bbm-button">Done</a>
+    </div>
+  </script>
+
+<script type="text/x-jquery-tmpl" id="template-reportdesigner-workspace-toolbar">
         <ul> 
-            <!--<li><a href="#toggle_report" 
-                class="i18n view button disabled_toolbar sprite" 
-                title="Switch Table/Report"></a></li>
-            <li class="seperator"   ><a href="#save_query" 
-                class="i18n save button disabled_toolbar sprite" 
-                title="Save query"></a></li>-->
+            <li><a href="#resultset" 
+                class="i18n resultset button disabled_toolbar sprite" 
+                title="Show Resultset"></a></li>
+            <li><a href="#report" 
+                class="i18n report button disabled_toolbar sprite" 
+                title="Show Report"></a></li>
+            <li class="seperator"><a href="#tabular" 
+                class="i18n tabular button disabled_toolbar sprite" 
+                title="Tabular Report"></a></li>
+            <li><a href="#crosstab" 
+                class="i18n crosstab button disabled_toolbar sprite" 
+                title="Crosstab Report"></a></li>
             <li class="seperator"><a href="#run_query" 
                 class="i18n run button disabled_toolbar sprite" 
                 title="Run query"></a></li>
@@ -45,10 +80,10 @@
                 title="Excel Forms"></a></li-->
             <!--li><a href="#export_prpt" 
                 class="i18n prpt button sprite" 
-                title="Export PRPT"></a></li>
+                title="Export PRPT"></a></li-->
             <li><a href="#export_cda" 
                 class="i18n cda button sprite" 
-                title="Export CDA"></a></li-->
+                title="Export CDA"></a></li>
             <li class="seperator">
             <div class="rowlimit">          
                     Row Limit<select style="margin: 0px; margin-left: 10px">
@@ -62,7 +97,6 @@
                 </div>
         </ul>
 </script>
-
 
 <script type="text/x-jquery-tmpl" id="template-md-models">
     <select class="cubes">
@@ -82,7 +116,7 @@
             <ul>
                 <% _.each(category.columns, function(column) { %>
                 <li class="hide">
-                    <a title="<%= column.name %>" class="dimension"
+                    <a title="<%= column.name %>" class="<%= column.fieldType %> dimension"
                         href="#CATEGORY/<%= category.id %>/COLUMN/<%= column.id %>"><%= column.name %></a>
                 </li>
                 <% }); %>
@@ -94,18 +128,10 @@
 
 <script type="text/x-jquery-tmpl" id="template-report-dropzones">
     <div class="workspace_fields">
-        <div class="fields_list" title="MEASURES">
-            <div class="fields_list_header i18n">Measures</div>
-            <div class="fields_list_body measures">
+        <div class="fields_list" title="COLUMNS">
+            <div class="fields_list_header i18n">Columns</div>
+            <div class="fields_list_body columns">
                 <ul class="connectable"></ul>
-            </div>
-            <div class="clear"></div>
-        </div>
-        <div class="fields_list" title="REL_GROUPS">
-            <div class="fields_list_header i18n">Groups</div>
-            <div class="fields_list_body relgroups">
-                <ul class="connectable">
-                </ul>
             </div>
             <div class="clear"></div>
         </div>
@@ -120,6 +146,21 @@
         <div class="fields_list" title="ROW_GROUPS">
             <div class="fields_list_header i18n">Rows</div>
             <div class="fields_list_body rowgroups">
+                <ul class="connectable">
+                </ul>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="fields_list" title="MEASURES">
+            <div class="fields_list_header i18n">Measures</div>
+            <div class="fields_list_body measures">
+                <ul class="connectable"></ul>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div class="fields_list" title="REL_GROUPS">
+            <div class="fields_list_header i18n">Groups</div>
+            <div class="fields_list_body relgroups">
                 <ul class="connectable">
                 </ul>
             </div>
@@ -190,7 +231,7 @@
     </div>
 </script>
 
-<script type="text/template" id="template-filter-row">
+<!--script type="text/template" id="template-filter-row">
     <div class="filterrow" filterIndex="<%= filterIndex %>">
         <select class="op">
             <% _.each(availableOpr, function(oprType) { %>
@@ -214,15 +255,26 @@
         <input name="name" type="text" class="parameter_name" disabled/>
         <input name="label" type="text" class="parameter_label" disabled/>
         <select class="widget" disabled>
-            <% _.each(availableComparators, function(comparator) { %>
-            <option value="<%= comparator %>"><%= comparator %></option>
+            <% _.each(availableWidgets, function(widget) { %>
+            <option value="<%= widget %>"><%= widget %></option>
             <% }); %>
         </select>
     </div>
+</script-->
+
+<script type="text/template" id="template-filter-item">
+        <select class="op" data-bind="value:operator,options:combo_operations"></select>
+        <select class="agg" data-bind="value:aggregation,options:combo_aggregations"></select>
+        <div data-bind="text:columnName"></div>
+        <select class="func" data-bind="value:func,options:combo_conditions"></select>
+        <input name="value" type="text" data-bind="value:value"/>
+        <input name="prompt" class="prompt_parameter" type="checkbox" />
+        <input name="name" type="text" class="parameter_name" disabled/>
+        <input name="label" type="text" class="parameter_label" disabled/>
+        <!--select class="widget" data-bind="value:,options:combo_prompts" disabled></select-->
 </script>
 
 <script type="text/template" id="template-filter-dialog">
-    <div class="simple_filter_row">
         <div class="fr">
             <div class="frLabel" style="width: 100px;">Operator</div>
             <div class="frLabel" style="width: 100px;">Aggregation</div>
@@ -232,8 +284,9 @@
             <div class="frLabel" style="width: 50px;">Prompt</div>
             <div class="frLabel" style="width: 104px;">Name</div>
             <div class="frLabel" style="width: 100px;">Prompting text</div>
-            <div class="frLabel" style="width: 100px;">Widget</div>
+            <div class="frLabel" style="width: 100px;">Type</div>
         </div>
+    <div id="filter_items">  
     </div>
 </script>
 
@@ -421,15 +474,6 @@
     </div>
 </script>
 
-<script type="text/x-jquery-tmpl" id="template-report-workspace">
-    <div class="workspace_report">
-        <div class="report-toolbar">
-        <div id='format_toolbox'></div>
-        <div class="workspace-report-toolbar"></div>
-        <div class="workspace_report_canvas"></div>
-    </div>
-</script>
-
 <!--script type="text/x-jquery-tmpl" id="template-report-workspace">
         <div class="workspace">
             <div class="workspace_inner">
@@ -469,14 +513,26 @@
         <div class="clear"></div>
 </script-->
 
+<!--script type="text/x-jquery-tmpl" id="template-report-designer">
+    <div class="workspace_report">
+        <div class="report-toolbar">
+        <div id='format_toolbox'></div>
+        <div class="workspace-report-toolbar"></div>
+        <div class="workspace_report_canvas"></div>
+    </div>
+</script-->
+
 <script type="text/x-jquery-tmpl" id="template-workspace-reporting">
     <div class="workspace">
         <div class="workspace_inner">
             <div class="workspace_toolbar"></div>
-            <div class="workspace_editor"></div>
-            <div class="workspace-report-toolbar"></div>
+            <div class="workspace_editor">
+                    <div id='filter_editor' class="hide" />
+            </div>
+            <div class="workspace-report-toolbar"></div>           
             <div class="workspace_results">
-                <div id="content">
+            <div id="content">
+            <div class="workspace_error"></div>
                     <div class="workspace_report">
                         <div class="workspace_report_canvas"></div>
                     </div>
@@ -486,18 +542,16 @@
     </div>
     <div class="sidebar">
         <div>
-            <h3 class="top i18n">Cubes</h3>
-            <div class="refresh_cubes_nav">
+            <h3 class="top i18n">Models</h3>
+            <!--div class="refresh_cubes_nav">
                 <a href="#refresh_cubes" class="i18n button refresh_cubes" title="Refresh Cubes (Clear Cache)"></a>
-            </div>
+            </div-->
         </div>
         <div class="sidebar_inner">
             <%= cube_navigation %>
         </div>
-        <h3 class="i18n">Dimensions</h3>
+        <h3 class="i18n">Data Fields</h3>
         <div class="sidebar_inner dimension_tree"></div>
-        <h3 class="i18n">Measures</h3>
-        <div class="sidebar_inner measure_tree"></div>
     </div>
 
     <div class="sidebar_separator"></div>

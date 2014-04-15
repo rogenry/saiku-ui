@@ -207,10 +207,6 @@ var ElementFormatPanel = Backbone.View.extend({
 		
 		var that = this;
 
-		//TODO: Here I have to know what the value is
-		//i.e. Label->value or DataField->fieldNames
-		//this has to be passed in here too!
-
 		var inplaceEditDelegate = {
 				willOpenEditInPlace: function(aDOMNode, aSettingsDict) {
 					return that.workspace.serverReportSpec.getValueById(that.element);
@@ -275,9 +271,6 @@ var ElementFormatPanel = Backbone.View.extend({
 
 	save: function() {
 
-		//TODO: This is a dirty hack
-		//this.reportSpec.setElementFormatPropertyById(this.element,'width',null);			???
-		//this.finished();
 		this.query.run();
 		
 		return false;

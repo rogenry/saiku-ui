@@ -29,6 +29,10 @@ var reportDesigner = reportDesigner || {};
         addFilter: function(columnMeta, index){
             console.log("adding filter to model");
 
+            das hier wird ein backbone model
+
+            columnName
+
             var filter = {
                 columnMeta: columnMeta,
                 category: columnMeta.category,

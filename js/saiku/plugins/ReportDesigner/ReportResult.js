@@ -48,18 +48,6 @@ var ReportResult = Backbone.Model.extend({
 		return encodeURI("generator" + "/webreport/" + page) + "?nocache="+new Date();
 	}
 
-/* ,
-	fetch: function (options) {
-         options.cache = false;
-		 options.type = 'POST';
-		 options.contentType =  'application/json'; 
-		 //options.data = JSON.stringify(testmodel);
-		 var test = this.query.reportSpec;
-		 var stringTest = JSON.stringify(test);
-		 options.data = JSON.stringify(this.query.reportSpec);
-         return Backbone.Model.prototype.fetch.call(this, options);
-     }
-*/
  });
 
 var FilterResult = Backbone.Model.extend({
@@ -84,45 +72,16 @@ reportDesigner.SavedQuery = SavedQuery.extend({
     },
 
     move_query_to_workspace: function(model, response) {
-    	console.log("moving query to workspace");
-
-    	/*
-        var file = response;
-        var filename = model.get('file');
-        for (var key in Settings) {
-            if (key.match("^PARAM")=="PARAM") {
-                var variable = key.substring("PARAM".length, key.length);
-                var Re = new RegExp("\\$\\{" + variable + "\\}","g");
-                var Re2 = new RegExp("\\$\\{" + variable.toLowerCase() + "\\}","g");
-                file = file.replace(Re,Settings[key]);
-                file = file.replace(Re2,Settings[key]);
-                
-            }
-        }
-        var query = new Query({ 
-            xml: file,
-            formatter: Settings.CELLSET_FORMATTER
-        },{
-            name: filename
-        });
-        */
+    	console.log("moving report to workspace");
 
         var jsonResponse = JSON.parse(response);
         var xmlResponse = reportDesigner.mql.Phomp.mqlToJs(jsonResponse.dataSource.queryString);
-
-        /*var parser=new DOMParser();
-        var qXml = parser.parseFromString(jsonResponse.dataSource.queryString,'text/xml');
-
-        var domainID = qXml.getElementsByTagName('domain_id');
-        var modelID = qXml.getElementsByTagName('model_id');
-        */
 
         var mqlReport = new Query({
             domainId: xmlResponse.mql.domain_id,
             modelId: xmlResponse.mql.model_id
         });
 
-        // these are the new client models
         mqlReport.reportSpec = new reportDesigner.ReportSpecification(jsonResponse);
         mqlReport.serverReportSpec = null;
 

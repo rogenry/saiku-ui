@@ -4,7 +4,7 @@
 var Constants = {
 	horizontalAlignments: ["LEFT","CENTER","RIGHT"],
 	verticalAlignments: ["TOP","CENTER","BOTTOM"]
-}    
+}; 
 
 var AggTypes = {
    "NONE" : "None",
@@ -14,7 +14,7 @@ var AggTypes = {
    "COUNT_DISTINCT" : "Count Distinct",
    "MINIMUM" : "Minimum",
    "MAXIMUM" : "Maximum"
-}
+};
 
 var OprTypes = {
     "NONE" : "", 
@@ -23,6 +23,7 @@ var OprTypes = {
     "AND" : "AND",
     "AND NOT" : "AND NOT"
 };
+
 
 var defaultCalcColumn =
 {"name":"Calculated Column",

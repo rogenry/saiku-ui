@@ -17,6 +17,7 @@
 /**
  * The base class for all modal dialogs
  */
+
 var Modal = Backbone.View.extend({
     tagName: "div",
     className: "dialog",
@@ -57,12 +58,27 @@ var Modal = Backbone.View.extend({
     },
     
     render: function() {
+
+      var $el = this.$el,
+          options = this.options,
+          content = options.content;
+
         $(this.el).html(this.template())
             .addClass("dialog_" + this.type)
             .dialog(this.options);
 
         $('.ui-dialog-title').html(this.options.title);
         Saiku.i18n.translate();
+
+
+        var $content = this.$content = $el.find('.dialog_body');
+
+        //Insert the main content if it's a view
+        if (content && content.$el) {
+            content.render();
+            $el.find('.dialog_body').html(content.$el);
+        }
+
         return this;
     },
     
@@ -89,3 +105,4 @@ var Modal = Backbone.View.extend({
         return false;
     }
 });
+

@@ -54,7 +54,7 @@ var Workspace = Backbone.View.extend({
         // Generate table
         this.table = new Table({ workspace: this });
         
-//        this.chart = new Chart({ workspace: this });
+        this.chart = new Chart({ workspace: this });
         // Pull query from args
         this.item = {};
         this.viewState = (args && args.viewState) ? args.viewState : Settings.DEFAULT_VIEW_STATE; // view / edit

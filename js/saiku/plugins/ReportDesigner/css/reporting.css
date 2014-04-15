@@ -1,9 +1,29 @@
-.workspace_toolbar .view {
-    background: url('../../ReportDesigner/images/report-view.png') 50% 50% no-repeat;
+.workspace-error{
+        border:solid 1px #DEDEDE;
+        background:#FAD9D9  url('../../../images/exclamation.png') 8px 6px no-repeat;
+        color:#222222;
+        padding:4px;
+        height: 40px;
+        text-align:center;
+        vertical-align: middle;
 }
-.workspace_toolbar .view.table {
-    background: url('../../ReportDesigner/images/table-view.png') 50% 50% no-repeat !important;
+
+.workspace_toolbar .resultset {
+    background: url('../../ReportDesigner/images/reportMode.png') 50% 50% no-repeat;
 }
+.workspace_toolbar .report {
+    background: url('../../ReportDesigner/images/dataMode.png') 50% 50% no-repeat !important;
+}
+
+.workspace_toolbar .tabular {
+    background: url('../../ReportDesigner/images/table.png') 50% 50% no-repeat;
+}
+.workspace_toolbar .crosstab {
+    background: url('../../ReportDesigner/images/crosstab.png') 50% 50% no-repeat !important;
+}
+
+
+
 .workspace_toolbar .union {
     background: url('../../ReportDesigner/images/union.png') 50% 50% no-repeat;
 }
@@ -87,10 +107,20 @@
 .resultlist_tree li {
     padding-left: 18px;
 }
-.category_tree ul li ul li a {
+
+.dimension_tree ul li ul li a.DIMENSION,
+.dimension_tree ul li ul li a.UNKNOWN,
+.dimension_tree ul li ul li a.KEY,
+.dimension_tree ul li ul li a.ATTRIBUTE{
     /* cursor: move; */
     padding-left: 20px;
     background: url('../../ReportDesigner/images/bullet_blue.png') 0px -2px no-repeat;
+}
+
+.dimension_tree ul li ul li a.FACT {
+    /* cursor: move; */
+    padding-left: 20px;
+    background: url('../../ReportDesigner/images/bullet_red.png') 0px -2px no-repeat;
 }
 
 .category_tree ul .ui-draggable-dragging {
@@ -127,7 +157,7 @@
     height: 20px;
     font-weight: bold;
     font-size: 12px;
-    margin: 0 0 3px -5px;
+    margin: 12px 0 3px -5px;
     padding: 3px 10px 3px 5px;
     text-shadow: 1px 1px 0 #FFFFFF;
     overflow: hidden;
@@ -717,60 +747,60 @@ div.folderexplorer{
   display: none;
 }
 
-.dialog_simpleFilterDialog .simple_filter_row .remove {
+.dialog_simpleFilterDialog .filter_item .remove {
   display: none;
 }
 
-.simple_filter_row select, .simple_filter_row input[type="text"] , .simple_filter_row .datepicker{
-      width: 95px;
-      margin:0 5px 0 0;
-      padding: 0;      
-}
-
-.simple_filter_row .col{
-  margin:0 5px 0 0;
-  padding: 0;
-}
-
-.simple_filter_row select.op, .simple_filter_row .col, .simple_filter_row select.agg, .simple_filter_row select.func {
-  float: left; 
-  width: 95px;
-  margin-right:5px;
-}
-
-.simple_filter_row input[type="checkbox"] {
-  margin-right: 25px;
-  margin-top: 5px;
-}
-   
-.simple_filter_row {
-  margin-bottom:10px;
-}
-
-.simple_filter_row div.fr {
+.dialog_simpleFilterDialog div.fr {
   width:900px;
   height: 16px;
   margin-bottom: 5px;
 }
 
-.simple_filter_row div.fr div.frLabel {
+.dialog_simpleFilterDialog div.fr div.frLabel {
   float:left;
   font-weight: bold;
 }
 
-.simple_filter_row select, .simple_filter_row input {
+.filter_item select, .filter_item input[type="text"] , .filter_item .datepicker{
+      width: 95px;
+      margin:0 5px 0 0;
+      padding: 0;      
+}
+
+.filter_item .col{
+  margin:0 5px 0 0;
+  padding: 0;
+}
+
+.filter_item select.op, .filter_item .col, .filter_item select.agg, .filter_item select.func,  .filter_item div {
+  float: left; 
+  width: 95px;
+  margin-right:5px;
+}
+
+.filter_item input[type="checkbox"] {
+  margin-right: 25px;
+  margin-top: 5px;
+}
+   
+.filter_item {
+  margin-bottom:10px;
+}
+
+.filter_item select, .filter_item input {
   vertical-align: top;
 }
 
-.simple_filter_row select{
+.filter_item select{
   height: 20px;
 }
 
-.simple_filter_row input {
+.filter_item input {
   height: 18px;
 }
 
-.filterrow {
+.filter_item {
   clear:left;
 }
 

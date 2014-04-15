@@ -10,6 +10,10 @@ reportDesigner.Workspace = Workspace.extend({
         }
 
         this._super("initialize", args);
+
+        //Create the UI-Statemachine
+        this.fsm = fsm = StateMachine.create(WORKSPACE_FSM_CONFIG, {},this);
+
         
         this.report = new ReportDesigner({
             workspace: this
@@ -29,7 +33,6 @@ reportDesigner.Workspace = Workspace.extend({
         
         $(this.el).find('.workspace_report_canvas').append($(this.report.el));
 
-        //TODO: add report editpanel here
         this.edit_panel = new ElementFormatPanel({
             workspace: this,
             el: $(this.el).find('.workspace-report-toolbar')
@@ -101,12 +104,6 @@ reportDesigner.Workspace = Workspace.extend({
             //$(this.el).find('.dimension_tree').html('').append($(this.mdmodel_list.el));
             var tHtml = $(this.el).find('.dimension_tree');
             tHtml.html('').append($(this.mdmodel_list.el));
-
-            this.filterModel = new reportDesigner.FilterModel({
-                workspace : this,
-                query : this.query
-            });
-
 
         } else {
             // Someone literally selected "Select a model"
@@ -275,7 +272,9 @@ reportDesigner.Workspace = Workspace.extend({
 
         // Adjust the dimensions of the error window
         $(this.el).find('.workspace_error').css({height: $("body").height() - $("#header").height() - $(this.el).find('.workspace_toolbar').height() - 40 
-        });
+        }).empty();
+
+        //@CZ: Is all this really necessary?
 
         this._super("clear", arguments);
     },

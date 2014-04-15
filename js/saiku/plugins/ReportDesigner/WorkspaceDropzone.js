@@ -11,7 +11,6 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
 
         this._super("render", arguments);
 
-
         console.log('dropzones=' + this.workspace.mode);
         if(this.workspace.mode === 'crosstab') {
             $(this.el).find('.fields_list[title=REL_GROUPS]').hide();
@@ -69,13 +68,7 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
     select_dimension: function(event, ui) {
 
         $axis = ui.item.parents('.fields_list_body');
-        var target = "";
-
-        if($axis.hasClass('measures')) target = "MEASURES";
-        if($axis.hasClass('relgroups')) target = "REL_GROUPS";
-        if($axis.hasClass('colgroups')) target = "COL_GROUPS";
-        if($axis.hasClass('rowgroups')) target = "ROW_GROUPS";
-        if($axis.hasClass('filters')) target = "FILTERS";
+        var target = this.nameOfTargetZone($axis);
 
         // Short circuit if this is a move
         if (ui.item.hasClass('d_measure') ||
@@ -83,18 +76,6 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             this.move_dimension(event, ui, target);
             return;
         }
-
-        // [cz] make all draggable
-        // Make the element and its parent bold
-        /*var original_href = ui.item.find('a').attr('href');
-        var $original = $(this.workspace.el).find('.sidebar')
-            .find('a[href="' + original_href + '"]').parent('li');
-        $original
-            .css({fontWeight: "bold"})
-            .draggable('disable');
-        $original.parents('.parent_dimension')
-            .find('.folder_collapsed')
-            .css({fontWeight: "bold"});*/
 
         // Wrap with the appropriate parent element
         var initialSort = 'none'; 
@@ -115,8 +96,6 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
         var member = ui.item.find('a').attr('href').replace('#', '');
         var dimension = member.split('/')[3];  //MG
         var dimensions = [];
-
-        //this.update_selections(event,ui); //MG// What is this for?
 
         $axis.find('a').each( function(i,element) {
             var imember = $(element).attr('href');
@@ -207,16 +186,9 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
                 .css({fontWeight: "normal"});
         }
 
-        // Notify server
-        var target = '';
         var dimension = original_href.replace('#', '');
-        $target_el = $source.parent().parent('div.fields_list_body');
-        if($target_el.hasClass('measures')) target = "MEASURES";
-        if($target_el.hasClass('relgroups')) target = "REL_GROUPS";
-        if($target_el.hasClass('colgroups')) target = "COL_GROUPS";
-        if($target_el.hasClass('rowgroups')) target = "ROW_GROUPS";
-        if($target_el.hasClass('filters')) target = "FILTERS";
-
+        var $target_el = $source.parent().parent('div.fields_list_body');
+        var target = this.nameOfTargetZone($target_el);
         var index = $target_el.find('li.ui-draggable').index($target_el.find('a[href="#' + dimension + '"]').parent());
 
         this.workspace.query.remove_dimension(target, index, dimension);
@@ -237,15 +209,9 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
 
         var $li = $target.parent('.ui-draggable');
         var index = $li.parent('.connectable').children().index($li);
-
-        var target = '';
         var $source = ui ? ui.draggable : $(event.target).parent();
-        $target_el = $source.parent().parent('div.fields_list_body');
-        if($target_el.hasClass('measures')) target = "MEASURES";
-        if($target_el.hasClass('relgroups')) target = "REL_GROUPS";
-        if($target_el.hasClass('colgroups')) target = "COL_GROUPS";
-        if($target_el.hasClass('rowgroups')) target = "ROW_GROUPS";
-        if($target_el.hasClass('filters')) target = "FILTERS";
+
+        var target = this.nameOfTargetZone($source.parent().parent('div.fields_list_body'));
 
         if(target == 'MEASURES') {
            if(key.indexOf("CALCULATED") !== -1) {
@@ -268,14 +234,12 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             }
         }else if(target  == 'FILTERS'){
             console.log("edit Filter");
-
-            (new FilterDialog({
-                workspace: this.workspace,
-                key: key,
-                action: "edit",
-                index: index
-            })).open();
-
+            // (new FilterDialog({
+            //     workspace: this.workspace,
+            //     key: key,
+            //     action: "edit",
+            //     index: index
+            // })).open();
       }
 
         // Prevent default action
@@ -283,7 +247,17 @@ reportDesigner.WorkspaceDropZone = WorkspaceDropZone.extend({
             event.preventDefault();
         } catch(e) {}
         return false;
+    },
+
+    nameOfTargetZone: function($target_el){
+        if($target_el.hasClass('columns')) return "COLUMNS";
+        if($target_el.hasClass('measures')) return "MEASURES";
+        if($target_el.hasClass('relgroups')) return "REL_GROUPS";
+        if($target_el.hasClass('colgroups')) return "COL_GROUPS";
+        if($target_el.hasClass('rowgroups')) return "ROW_GROUPS";
+        if($target_el.hasClass('filters')) return "FILTERS";
     }
+
 
 });
 
