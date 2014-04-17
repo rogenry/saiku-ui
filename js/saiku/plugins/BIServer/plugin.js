@@ -90,9 +90,9 @@ var savePg0 = function() {};
  */
 if (Settings.BIPLUGIN) {
     Settings.PLUGIN = true;
-    Settings.REST_URL = "../saiku/";
+    Settings.REST_URL = "./../../plugin/saiku-reporting/api/";
     if (Settings.BIPLUGIN5) {
-        Settings.REST_URL = "../../plugin/saiku/api/";
+        Settings.REST_URL = "./../../plugin/saiku-reporting/api/";
     }
     
 
