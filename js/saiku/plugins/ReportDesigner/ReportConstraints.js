@@ -190,7 +190,7 @@ var reportDesigner = reportDesigner || {};
 			if(typeof mqlQueryString !== "undefined"){
 				dataSource = new reportDesigner.Datasource({
 					id: "FILTER_" + paramName,
-					type: DatasourceType.CDA,
+					type: DatasourceType.METADATA,
 					queryString: mqlQueryString
 					}); 
 			}

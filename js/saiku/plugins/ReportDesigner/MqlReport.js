@@ -155,7 +155,7 @@ reportDesigner.MqlReport = Backbone.Model.extend({
 
 		this.reportSpec.dataSource = new reportDesigner.Datasource({
 			id: "master",
-			type: DatasourceType.CDA,
+			type: DatasourceType.METADATA,
 			queryString: mqlQueryString
 		});
 
